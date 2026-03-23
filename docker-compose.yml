@@ -1,0 +1,18 @@
+services:
+  thecut-app:
+    build: .
+    container_name: thecut_web
+    network_mode: "bridge" # Forzamos el modo puente estándar
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    ports:
+      - "8888:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - DB_HOST=aws-1-eu-central-1.pooler.supabase.com
+      - DB_PORT=6543
+      - DB_NAME=postgres
+      - DB_USER=postgres.stkgkgveehgewxzfyccg
+      - DB_PASS=x8YHtCCc8Y2joiBB

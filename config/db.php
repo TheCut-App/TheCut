@@ -1,17 +1,21 @@
 <?php
-$host     = 'stkgkgveehgewxzfyccg.supabase.co';
-$port     = '5432';
-$dbname   = 'postgres';
-$user     = 'postgres';
-$password = 'x8YHtCCc8Y2joiBB';
+$host     = getenv('DB_HOST');
+$port     = getenv('DB_PORT');
+$dbname   = getenv('DB_NAME');
+$user     = getenv('DB_USER');
+$password = getenv('DB_PASS');
 
 try {
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    // La conexión mágica para Supabase
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;sslmode=require";
+    
     $pdo = new PDO($dsn, $user, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
+
+    // Si quieres comprobar que funciona, puedes descomentar la siguiente línea:
+    // echo "¡Conexión establecida con éxito!";
 } catch (PDOException $e) {
-    // Si falla, nos dirá por qué (muy útil en desarrollo)
-    die("Error de conexión: " . $e->getMessage());
+    die("Error crítico de conexión: " . $e->getMessage());
 }
