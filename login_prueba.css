@@ -1,0 +1,101 @@
+:root {
+    --fondoPrincipal: #050B0D;
+    --doradoArtDeco: #C5A059;
+    --cremaChampagne: #E9D5B3;
+    --grisCarbon: #1A1D20;
+}
+
+body {
+    background-color: var(--fondoPrincipal);
+    color: var(--cremaChampagne);
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.tarjetaLogin {
+    background-color: var(--grisCarbon);
+    padding: 60px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.formTitle {
+    color: var(--doradoArtDeco);
+    font-size: 1.5rem;
+    font-weight: normal;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 50px; /* Más aire al título como en el boceto */
+    text-transform: uppercase;
+}
+
+.contenidoCentral {
+    display: flex;
+    align-items: center;
+    gap: 50px; /* Espacio elegante entre logo e inputs */
+}
+
+.logoContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logoImage {
+    width: 250px;
+}
+
+.formularioSection {
+    display: flex;
+    flex-direction: column;
+}
+
+.grupoInput {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 25px;
+}
+
+.inputLabel {
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.textInput {
+    background-color: var(--cremaChampagne);
+    border: none; /* Quitamos el borde negro feo */
+    padding: 15px;
+    width: 300px; /* Ancho de inputs profesional */
+    font-size: 1rem;
+    color: var(--fondoPrincipal);
+}
+
+.submitButton {
+    background-color: var(--cremaChampagne);
+    color: var(--fondoPrincipal);
+    border: none;
+    padding: 15px 40px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    align-self: flex-end; /* Lo mueve a la derecha como el boceto */
+    margin-top: 15px;
+}
+
+.submitButton:hover {
+    background-color: var(--doradoArtDeco);
+}
+
+.errorText {
+    color: #ff6b6b;
+    text-align: center;
+    margin-bottom: 15px;
+    grid-area: titulo;
+}

@@ -10,7 +10,7 @@
     <div class="login-container">
         <div class="logo-section">
             <div class="logo-wrapper">
-                <img src="logo_thecut.png" alt="TheCut Logo" class="main-logo">
+                <img src="logo.png" alt="TheCut Logo" class="main-logo">
                 <h2 class="brand-name">TheCut</h2>
             </div>
         </div>
