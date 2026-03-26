@@ -3,8 +3,8 @@
 class Usuario{
     private $db;
 
-    public function __construct($conexion) {
-        $this->db = $conexion;
+    public function __construct() {
+        $this->db = Database::getConnection();
     }
 
     //Obligatorio parametros username, password, nombre, apellido_1

@@ -1,12 +1,13 @@
 <?php
 require_once 'app/config/db.php';
 
+$db = Database::getConnection();
+
 // Consultamos el usuario que creamos antes
 $sql = "SELECT * FROM usuarios WHERE username = :user";
-$stmt = $pdo->prepare($sql);
+$stmt = $db->prepare($sql); // Usamos $db en lugar de $pdo
 $stmt->execute(['user' => 'admin']);
 $usuario = $stmt->fetch();
-
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +28,7 @@ $usuario = $stmt->fetch();
             <p>Usuario detectado: <strong><?php echo $usuario['nombre']; ?></strong></p>
             <p>Rol: <?php echo $usuario['is_admin'] ? 'Administrador' : 'Empleado'; ?></p>
             <a>
-                <button onclick="window.location.href='app/views/Login.php'">Ir a Login</button>
+                <button onclick="window.location.href='app/views/login.php'">Ir a Login</button>
             </a>
         <?php else: ?>
             <p>No se encontró el usuario en la base de datos.</p>
