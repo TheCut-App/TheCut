@@ -27,7 +27,7 @@ $usuario = $stmt->fetch();
             <p>Usuario detectado: <strong><?php echo $usuario['nombre']; ?></strong></p>
             <p>Rol: <?php echo $usuario['is_admin'] ? 'Administrador' : 'Empleado'; ?></p>
             <a>
-                <button onclick="window.location.href='login_prueba.php'">Ir a Login</button>
+                <button onclick="window.location.href='app/views/Login.php'">Ir a Login</button>
             </a>
         <?php else: ?>
             <p>No se encontró el usuario en la base de datos.</p>
