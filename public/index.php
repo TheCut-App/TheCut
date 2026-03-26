@@ -1,5 +1,5 @@
 <?php
-require_once 'config/db.php';
+require_once '../app/config/db.php';
 
 // Consultamos el usuario que creamos antes
 $sql = "SELECT * FROM usuarios WHERE username = :user";
