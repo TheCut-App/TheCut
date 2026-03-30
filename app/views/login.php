@@ -16,18 +16,31 @@
 
         <div class="seccion-formulario">
             <h1 class="titulo-principal">Domina tu barbería</h1>
-            <form id="formularioLogin" class="formulario-login" action="" method="POST">
+            <form id="formularioLogin" class="formulario-login" action="../../index.php?accion=login" method="POST">     
                 <div class="grupo-campo">
                     <label for="usuario">USUARIO</label>
-                    <input type="text" id="usuario" name="usuario" autocomplete="off" required>
+                    <input type="text" id="usuario" name="usuario" autocomplete="off">
                 </div>
                 <div class="grupo-campo">
                     <label for="contrasena">CONTRASEÑA</label>
-                    <input type="password" id="contrasena" name="contrasena" required>
+                    <input type="password" id="contrasena" name="contrasena">
                 </div>
                 <button type="submit" class="boton-enviar">ACEPTAR</button>
             </form>
         </div>
     </div>
+<?php 
+    // Comprobamos si existe un error guardado en la sesión
+    if (isset($_SESSION['error_login'])): 
+    ?>
+        <script>
+            // Lanzamos el alert de JavaScript con el texto del error
+            alert("<?php echo $_SESSION['error_login']; ?>");
+        </script>
+    <?php 
+        // Destruimos la variable para que el alert no vuelva a salir al actualizar la página
+        unset($_SESSION['error_login']); 
+    endif; 
+    ?>
 </body>
 </html>

@@ -1,4 +1,5 @@
 <?php
+/*
 require_once 'app/config/db.php';
 
 $db = Database::getConnection();
@@ -36,3 +37,30 @@ $usuario = $stmt->fetch();
     </div>
 </body>
 </html>
+*/
+?>
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Cargamos las clases esenciales 
+require_once 'app/config/db.php';
+require_once 'app/models/Usuario.php';
+require_once 'app/controllers/AuthController.php';
+
+// Obtenemos la conexión a la base de datos
+$conexion = Database::getConnection();
+
+// Sistema de enrutamiento básico
+$accion = $_GET['accion'] ?? 'mostrar_login';
+
+if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Si el formulario se envía, instanciamos el controlador inyectando la conexión
+    $auth = new AuthController($conexion);
+    $auth->procesarLogin();
+} else {
+    // Si no se está enviando el formulario, simplemente mostramos la vista del login
+    require_once 'app/views/login.php';
+}
+?>
