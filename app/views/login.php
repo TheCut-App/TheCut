@@ -19,28 +19,31 @@
             <form id="formularioLogin" class="formulario-login" action="../../index.php?accion=login" method="POST">     
                 <div class="grupo-campo">
                     <label for="usuario">USUARIO</label>
-                    <input type="text" id="usuario" name="usuario" autocomplete="off">
+                    <input type="text" id="usuario" name="usuario" autocomplete="off" 
+                    value="<?php echo isset($_SESSION['login_username']) ? htmlspecialchars($_SESSION['login_username']) : ''; ?>">
                 </div>
                 <div class="grupo-campo">
                     <label for="contrasena">CONTRASEÑA</label>
                     <input type="password" id="contrasena" name="contrasena">
                 </div>
-                <button type="submit" class="boton-enviar">ACEPTAR</button>
+                <button type="submit" name="btn_login" value="normal" class="boton-enviar">ACEPTAR</button>
+                <button type="submit" name="btn_login" value="invitado" class="boton-enviar">INVITADO</button>
             </form>
         </div>
     </div>
 <?php 
-    // Comprobamos si existe un error guardado en la sesión
     if (isset($_SESSION['error_login'])): 
-    ?>
-        <script>
-            // Lanzamos el alert de JavaScript con el texto del error
-            alert("<?php echo $_SESSION['error_login']; ?>");
-        </script>
-    <?php 
-        // Destruimos la variable para que el alert no vuelva a salir al actualizar la página
+?>
+    <script>
+        alert("<?php echo $_SESSION['error_login']; ?>");
+    </script>
+<?php 
         unset($_SESSION['error_login']); 
     endif; 
-    ?>
+
+    if (isset($_SESSION['login_username'])) {
+        unset($_SESSION['login_username']);
+    }
+?>
 </body>
 </html>

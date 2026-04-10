@@ -6,9 +6,8 @@ class AuthController {
 
     public function __construct($conexion_db) {
         //Si no esta con sesion iniciada que la incie 
-        if (!isset($_SESSION['user_id'])) {
+        if (session_status() === PHP_SESSION_NONE) {
             session_start();
-            exit;
         }
 
         // Instanciamos el modelo con la conexión que nos llega
@@ -18,8 +17,17 @@ class AuthController {
     public function procesarLogin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
-            $username = trim($_POST['usuario'] ?? '');
-            $password = trim($_POST['contrasena'] ?? '');
+            $boton_pulsado = $_POST['btn_login'] ?? 'normal';
+
+            if ($boton_pulsado === 'invitado') {
+                // Si pulsó INVITADO, ignoramos los inputs y forzamos estas credenciales
+                $username = 'invitado';
+                $password = '1234';
+            } else {
+                // Si pulsó ACEPTAR, recogemos lo que haya escrito en el formulario
+                $username = trim($_POST['usuario'] ?? '');
+                $password = trim($_POST['contrasena'] ?? '');
+            }
 
             if (isset($username) && isset($password)) {
                 
@@ -44,7 +52,7 @@ class AuthController {
                             exit;
                             
                         } else {
-                            $this->redirigirConError("Contraseña incorrecta.");
+                            $this->redirigirConError("Contraseña incorrecta.", $username);
                         }
                     } else {
                         $this->redirigirConError("Cuenta de usuario desactivada.");
@@ -58,11 +66,14 @@ class AuthController {
         }
     }
 
-    private function redirigirConError($mensaje) {
-        // Guardamos el error en la sesión temporalmente
+    private function redirigirConError($mensaje, $usuario_intentado = '') {
         $_SESSION['error_login'] = $mensaje;
-        
-        // Redirigimos al index con una URL totalmente limpia
+
+        // Si se ha pasado un usuario, lo guardamos en la sesión
+        if (!empty($usuario_intentado)) {
+            $_SESSION['login_username'] = $usuario_intentado;
+        }
+
         header("Location: index.php");
         exit;
     }

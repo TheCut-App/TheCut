@@ -1,0 +1,221 @@
+:root {
+    --azul-profundo: #050B0D;
+    --dorado-artdeco: #C5A059;
+    --champan: #E9D5B3;
+    --dorado-brillante: #D4AF37;
+    --gris-carbon: #1A1D20;
+    
+    /* Colores específicos de las citas del boceto */
+    --cita-verde: #0f664a;
+    --cita-granate: #781e3a;
+    --fondo-calendario: #EFE0C2; /* Color crema del fondo del calendario */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--azul-profundo);
+    color: var(--champan);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.admin-contenedor {
+    width: 100%;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* --- BARRA SUPERIOR --- */
+.admin-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.cabecera-izq, .cabecera-centro, .cabecera-der {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-pequeno {
+    width: 60px;
+}
+
+.titulo-admin {
+    color: var(--champan);
+    font-weight: 300;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.caja-estadistica {
+    border: 2px solid var(--dorado-artdeco);
+    padding: 10px 20px;
+    border-radius: 4px;
+    color: var(--champan);
+    font-weight: bold;
+    background-color: transparent;
+}
+
+.avatar-admin {
+    background-color: #5c244c; /* Morado del boceto */
+    color: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+/* --- CUERPO PRINCIPAL --- */
+.admin-cuerpo {
+    display: flex;
+    gap: 20px;
+    height: calc(100vh - 120px);
+}
+
+/* --- CALENDARIO GRID --- */
+.calendario-contenedor {
+    flex: 3;
+    background-color: var(--fondo-calendario);
+    border-radius: 8px;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.calendario-grid {
+    display: grid;
+    /* 1 col para la hora, 4 cols para los empleados */
+    grid-template-columns: 60px repeat(4, 1fr);
+    grid-auto-rows: 40px; /* Altura estándar de cada fila (30 mins) */
+    gap: 2px;
+    background-color: rgba(197, 160, 89, 0.3); /* Color de las líneas separadoras */
+    border: 1px solid rgba(197, 160, 89, 0.5);
+}
+
+.celda-cabecera {
+    background-color: var(--dorado-artdeco);
+    color: var(--azul-profundo);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.celda-hora {
+    background-color: var(--fondo-calendario);
+    color: var(--azul-profundo);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.celda-vacia {
+    background-color: var(--fondo-calendario);
+}
+
+/* Bloques de Citas */
+.cita-bloque {
+    color: white;
+    padding: 5px;
+    font-size: 0.75rem;
+    border-radius: 2px;
+    overflow: hidden;
+    line-height: 1.2;
+}
+
+.cita-verde { background-color: var(--cita-verde); }
+.cita-granate { background-color: var(--cita-granate); }
+
+/* --- MENÚ LATERAL --- */
+.menu-lateral {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.boton-dorado {
+    background-color: var(--dorado-artdeco);
+    border: 2px solid var(--champan);
+    color: var(--azul-profundo);
+    padding: 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+}
+
+.caja-menu {
+    border: 2px solid var(--dorado-artdeco);
+    border-radius: 4px;
+    background-color: var(--azul-profundo);
+    overflow: hidden;
+}
+
+.caja-titulo {
+    background-color: var(--gris-carbon);
+    color: var(--champan);
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid var(--dorado-artdeco);
+}
+
+.caja-lista {
+    list-style: none;
+    padding: 15px;
+}
+
+.caja-lista li {
+    padding: 10px 0;
+    color: var(--champan);
+    cursor: pointer;
+    border-bottom: 1px solid rgba(233, 213, 179, 0.1);
+}
+.caja-lista li:last-child { border-bottom: none; }
+
+.boton-artdeco {
+    /* 1. Dimensiones y Texto */
+    padding: 10px 25px;
+    font-size: 1.2rem;
+    font-weight: 400; /* Letra un poco más fina, como en la imagen */
+    letter-spacing: 1px;
+    color: var(--azul-profundo); /* Texto oscuro */
+    
+    /* 2. Fondo (Usamos un dorado más apagado/mate como en tu captura) */
+    background-color: #B49354; 
+    
+    /* 3. El Marco Exterior */
+    border: 1px solid var(--azul-profundo);
+    
+    /* 4. La Magia del Marco Art Déco (Doble Línea) */
+    /* - La primera sombra crea el "hueco" de 3px en dorado */
+    /* - La segunda sombra dibuja la línea interior oscura de 1px */
+    box-shadow: 
+        inset 0 0 0 3px #B49354, 
+        inset 0 0 0 4px var(--azul-profundo);
+        
+    /* Pequeños detalles extra */
+    position: relative;
+    cursor: default; /* Ponlo en 'pointer' si quieres que sea clicable */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
