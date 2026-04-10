@@ -102,10 +102,21 @@ class Usuario{
 
     //Si esta activo pasa a inactivo y viceversa
     public function toggleActivo($id) {
-    $sql = "UPDATE usuarios SET is_active = NOT is_active WHERE id = :id";
-    
-    $stmt = $this->db->prepare($sql);
-    
-    return $stmt->execute(['id' => $id]);
-}
+        $sql = "UPDATE usuarios SET is_active = NOT is_active WHERE id = :id";
+        
+        $stmt = $this->db->prepare($sql);
+        
+        return $stmt->execute(['id' => $id]);
+    }
+
+    //Muestra el id, username y nombre de todos los barberos activos
+    public function listarBarberos() {
+        $sql = "SELECT id, username, nombre 
+                FROM usuarios 
+                WHERE rol = 'barbero' AND is_active = true 
+                ORDER BY nombre ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
