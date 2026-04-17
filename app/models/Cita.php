@@ -24,4 +24,24 @@ class Cita {
         return $res['total'] ?? 0;
     }
 
+    //Todas las citas de todos los barberos hoy
+    public function citasTodosLosBarberosHoy(){
+        $sql = "SELECT 
+                c.id_usuario, 
+                c.fecha_cita, 
+                c.color, 
+                cl.nombre AS cliente_nombre,
+                s.nombre AS servicio_nombre
+            FROM citas c
+            JOIN clientes cl ON c.id_cliente = cl.id
+            LEFT JOIN citas_servicios cs ON c.id = cs.id_cita
+            LEFT JOIN servicios s ON cs.id_servicio = s.id
+            WHERE DATE(c.fecha_cita) = CURRENT_DATE
+            ORDER BY c.fecha_cita ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }
