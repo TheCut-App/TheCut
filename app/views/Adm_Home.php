@@ -1,8 +1,13 @@
 <?php
-session_start();
 // Validación estricta: Si no está logueado o no es admin, lo echamos
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header("Location: login.php?error=Acceso+denegado");
+    exit;
+}
+// Los redirigimos al index pidiendo la acción admin.
+if (!isset($datos)) {
+    // Ajusta la ruta a tu index.php si es necesario
+    header("Location: ../../index.php?accion=admin");
     exit;
 }
 ?>
@@ -64,7 +69,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['
                         <?php endfor; ?>
 
                         <?php foreach($citas as $cita): 
-                            $columna = array_search(strtoupper($cita['barbero']), $barberos) + 2;
+                            $columna = array_search($cita['barbero'], $barberos) + 2;
                             $filaInicio = calcularFila($cita['hora_inicio']);
                             $filaFin = calcularFila($cita['hora_fin']);
                             $colorClase = ($cita['servicio'] == 'Corte') ? 'cita-verde' : 'cita-granate';

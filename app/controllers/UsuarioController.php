@@ -3,14 +3,17 @@
 class UsuarioController{
 
     private $usuario;
+    private $cita;
 
     public function __construct() {
             $this->usuario = new Usuario();
+            $this->cita = new Cita();
 
             //Si no esta con sesion iniciada, a login
             if (!isset($_SESSION['user_id'])) {
             header("Location: login.php");
             exit;
+
         }
     }
 
@@ -56,26 +59,42 @@ class UsuarioController{
     
     $misCitasConteo = $this->cita->citasHoy($_SESSION['user_id']);
 
+    $nombresBarberos = [];
+        foreach($listaBarberos as $b) {
+            $nombresBarberos[] = strtoupper($b['nombre']);
+        }
+
     $datos = [
         'totales'      => $totalHoy,
-        'mis_citas'    => $misCitasConteo,
-        'barberos'     => array_column($listaBarberos, 'nombre'),
-        'citas_grid'   => $this->formatearCitasParaGrid($citasBrutas),
+        'mis_citas'    => $misCitasConteo,        
+        'barberos'     => $nombresBarberos,
+        'citas_grid'   => $this->formatearCitasParaGrid($citasBrutas, $listaBarberos),
         'fecha_actual' => $fecha
     ];
 
     return $datos;
 }
 
-private function formatearCitasParaGrid($citas) {
+private function formatearCitasParaGrid($citas, $listaBarberos) {
     $formateadas = [];
+
+    // Creamos un diccionario rápido [id => NOMBRE EN MAYÚSCULAS]
+    $diccionarioBarberos = [];
+        foreach($listaBarberos as $b) {
+            $diccionarioBarberos[$b['id']] = strtoupper($b['nombre']);
+        }
+
     foreach ($citas as $c) {
+        $hora_inicio = date('H:i', strtotime($c['fecha_cita']));
+        // Si no viene hora_fin, asumimos que dura 30 minutos
+        $hora_fin = isset($c['hora_fin']) ? date('H:i', strtotime($c['hora_fin'])) : date('H:i', strtotime($hora_inicio . ' + 30 minutes'));
         $formateadas[] = [
-            'barbero'     => $c['id_usuario'],
-            'hora_inicio' => date('H:i', strtotime($c['fecha_cita'])),
-            'cliente'     => $c['cliente_nombre'],
-            'servicio'    => $c['servicio_nombre'],
-            'color'       => $c['color']
+            'barbero'     => $diccionarioBarberos[$c['id_usuario']] ?? 'DESCONOCIDO',
+            'hora_inicio' => $hora_inicio,
+            'hora_fin'    => $hora_fin,
+            'cliente'     => $c['cliente_nombre'] ?? 'Cliente',
+            'servicio'    => $c['servicio_nombre'] ?? 'Servicio',
+            'color'       => $c['color'] ?? null
         ];
     }
     return $formateadas;

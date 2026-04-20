@@ -59,8 +59,26 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     // Si el formulario se envía, instanciamos el controlador inyectando la conexión
     $auth = new AuthController($conexion);
     $auth->procesarLogin();
+} elseif ($accion === 'admin') {
+    // Si la URL pide 'admin', cargamos el controlador y la vista
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+
+    $usuarioCtrl = new UsuarioController($conexion);
+    $datos = $usuarioCtrl->mostrarPanelAdmin();
+    
+    require_once 'app/views/Adm_Home.php';
+
+} elseif ($accion === 'invitado') {
+    
+    require_once 'app/views/Inv_Home.php';
+
+} elseif ($accion === 'empleado') {
+    
+    require_once 'app/views/Emp_Home.php';
+    
 } else {
-    // Si no se está enviando el formulario, simplemente mostramos la vista del login
+    // Si no se está enviando el formulario ni se pide admin, mostramos el login
     require_once 'app/views/login.php';
 }
 ?>

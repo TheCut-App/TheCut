@@ -3,6 +3,7 @@
 class AuthController {
 
     private $usuarioModel;
+    private $db;
 
     public function __construct($conexion_db) {
         //Si no esta con sesion iniciada que la incie 
@@ -12,6 +13,7 @@ class AuthController {
 
         // Instanciamos el modelo con la conexión que nos llega
         $this->usuarioModel = new Usuario($conexion_db);
+        $this->db = $conexion_db;
     }
 
     public function procesarLogin() {
@@ -29,7 +31,7 @@ class AuthController {
                 $password = trim($_POST['contrasena'] ?? '');
             }
 
-            if (isset($username) && isset($password)) {
+            if (!empty($username) && !empty($password)) {
                 
                 $usuario = $this->usuarioModel->buscarPorUsername($username);
 
@@ -43,11 +45,12 @@ class AuthController {
                             $_SESSION['is_admin'] = $usuario['is_admin'];
 
                             if ($usuario['is_admin']) {
-                                header("Location: app/views/Adm_Home.php");
+                                // Redirigimos al semáforo pidiendo la acción admin
+                                header("Location: index.php?accion=admin"); 
                             } else if ($usuario['username'] === 'invitado') {
-                                header("Location: app/views/Inv_Home.php");
+                                header("Location: index.php?accion=invitado"); 
                             } else {
-                                header("Location: app/views/Emp_Home.php");
+                                header("Location: index.php?accion=empleado"); 
                             }
                             exit;
                             
