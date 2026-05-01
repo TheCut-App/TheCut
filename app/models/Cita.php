@@ -32,29 +32,26 @@ class Cita {
     }
 
     //Todas las citas de todos los barberos, si no se pasa fecha es la de hoy, si se pasa fecha la de ese dia
-    public function citasTodosLosBarberosPorFecha($fecha = null) {
-        if ($fecha === null) {
-            $fecha = date('Y-m-d');
-        }
+    public function citasTodosLosBarberosPorFecha($fecha) {
 
-        $sql = "SELECT 
-                    c.id,
-                    c.id_usuario, 
-                    c.fecha_cita, 
-                    c.color, 
-                    cl.nombre AS cliente_nombre,
-                    s.nombre AS servicio_nombre
-                FROM citas c
-                JOIN clientes cl ON c.id_cliente = cl.id
-                LEFT JOIN citas_servicios cs ON c.id = cs.id_cita
-                LEFT JOIN servicios s ON cs.id_servicio = s.id
-                WHERE DATE(c.fecha_cita) = :fecha
-                ORDER BY c.fecha_cita ASC";
+    $sql = "SELECT 
+                c.id,
+                c.id_usuario, 
+                c.fecha_cita, 
+                cl.nombre AS cliente_nombre,
+                COALESCE(STRING_AGG(s.nombre, ' + '), 'Sin servicio') AS servicios_nombres,
+                COALESCE(SUM(s.duracion), 30) AS duracion_total
+            FROM public.citas c
+            LEFT JOIN public.clientes cl ON c.id_cliente = cl.id
+            LEFT JOIN public.citas_servicios cs ON c.id = cs.id_cita
+            LEFT JOIN public.servicios s ON cs.id_servicio = s.id
+            WHERE c.fecha_cita::date = :fecha 
+            GROUP BY c.id, c.id_usuario, c.fecha_cita, cl.nombre
+            ORDER BY c.fecha_cita ASC";
 
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['fecha' => $fecha]);
-        
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute(['fecha' => $fecha]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 }

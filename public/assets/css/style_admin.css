@@ -132,17 +132,42 @@ body {
 }
 
 /* Bloques de Citas */
+/* Bloques de Citas */
 .cita-bloque {
     color: white;
-    padding: 5px;
+    padding: 8px; /* Un poco más de aire para que no pegue al borde */
     font-size: 0.75rem;
-    border-radius: 2px;
+    border-radius: 4px; /* Bordes un pelín más redondeados para que sea elegante */
     overflow: hidden;
     line-height: 1.2;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2); /* Sombra suave para dar relieve */
+    z-index: 10;
 }
 
-.cita-verde { background-color: var(--cita-verde); }
-.cita-granate { background-color: var(--cita-granate); }
+/* ESTADOS DE COLOR SEGÚN DURACIÓN */
+
+/* 30 min - Verde original del boceto */
+.cita-verde { 
+    background-color: var(--cita-verde) !important; 
+    border-left: 4px solid #073b2a;
+}
+
+/* 45 min - Naranja (El que te faltaba para Juan) */
+.cita-naranja { 
+    background-color: #d68910 !important; 
+    border-left: 4px solid #915c0b;
+}
+
+/* 60+ min - Granate/Rojo suave */
+.cita-rojo-suave { 
+    background-color: var(--cita-granate) !important; 
+    border-left: 4px solid #4d1325;
+}
+
+/* Clase genérica para el granate que ya tenías */
+.cita-granate { 
+    background-color: var(--cita-granate) !important; 
+}
 
 /* --- MENÚ LATERAL --- */
 .menu-lateral {

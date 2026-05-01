@@ -68,19 +68,26 @@ if (!isset($datos)) {
                             <div class="celda-hora" style="grid-row: <?php echo (($h-9)*2)+3; ?>"><?php echo "$h:30"; ?></div>
                         <?php endfor; ?>
 
-                        <?php foreach($citas as $cita): 
-                            $columna = array_search($cita['barbero'], $barberos) + 2;
-                            $filaInicio = calcularFila($cita['hora_inicio']);
-                            $filaFin = calcularFila($cita['hora_fin']);
-                            $colorClase = ($cita['servicio'] == 'Corte') ? 'cita-verde' : 'cita-granate';
-                        ?>
-                            <div class="cita-bloque <?php echo $colorClase; ?>" 
-                                style="grid-column: <?php echo $columna; ?>; 
-                                        grid-row: <?php echo $filaInicio; ?> / <?php echo $filaFin; ?>;">
-                                <strong><?php echo substr($cita['hora_inicio'], 0, 5); ?></strong><br>
-                                <?php echo $cita['cliente']; ?> (<?php echo $cita['servicio']; ?>)
-                            </div>
-                        <?php endforeach; ?>
+ <?php foreach ($datos['citas_grid'] as $cita): ?>
+    <div class="cita-bloque <?php echo $cita['color_clase']; ?>" 
+         style="grid-column: <?php echo $cita['columna']; ?>; 
+                grid-row: <?php echo $cita['fila']; ?> / span <?php echo $cita['duracion']; ?>;
+                display: flex; flex-direction: column; justify-content: center; padding: 5px; overflow: hidden;">
+        
+        <div style="font-weight: bold; font-size: 0.85em; margin-bottom: 2px;">
+            <?php echo $cita['hora_inicio']; ?> - <?php echo $cita['hora_fin']; ?>
+        </div>
+        
+        <div style="font-weight: 800; text-transform: uppercase; font-size: 0.9em; line-height: 1;">
+            <?php echo $cita['cliente']; ?>
+        </div>
+        
+        <div style="font-style: italic; font-size: 0.75em; margin-top: 2px; line-height: 1.1;">
+            <?php echo $cita['servicio']; ?>
+        </div>
+        
+    </div>
+<?php endforeach; ?>
                     </div>
             </section>
 

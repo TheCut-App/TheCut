@@ -51,25 +51,31 @@ class UsuarioController{
     }
 
     $fecha = $fechaSeleccionada ?? date('Y-m-d');
-    
     $listaBarberos = $this->usuario->listarBarberos();
-    
     $citasBrutas = $this->cita->citasTodosLosBarberosPorFecha($fecha);
-    $totalHoy = $this->cita->citasTotalesHoy();
     
-    $misCitasConteo = $this->cita->citasHoy($_SESSION['user_id']);
+    // Formateo de fecha para la cabecera (Ej: LUNES, 2 MAY 2026)
+    // Formateo de fecha moderno (Sustituye al setlocale y strftime)
 
-    $nombresBarberos = [];
-        foreach($listaBarberos as $b) {
-            $nombresBarberos[] = strtoupper($b['nombre']);
-        }
+    $fechaObjeto = new DateTime($fecha);
+    $diasSemana = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+    $meses = [1 => 'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+
+    $nombreDia = $diasSemana[$fechaObjeto->format('w')];
+    $diaNum = $fechaObjeto->format('j');
+    $nombreMes = $meses[(int)$fechaObjeto->format('n')];
+    $anio = $fechaObjeto->format('Y');
+
+    $fechaFormateada = "$nombreDia, $diaNum DE $nombreMes $anio";
+
 
     $datos = [
-        'totales'      => $totalHoy,
-        'mis_citas'    => $misCitasConteo,        
-        'barberos'     => $nombresBarberos,
-        'citas_grid'   => $this->formatearCitasParaGrid($citasBrutas, $listaBarberos),
-        'fecha_actual' => $fecha
+        'totales'        => $this->cita->citasTotalesHoy(),
+        'mis_citas'      => $this->cita->citasHoy($_SESSION['user_id']),        
+        'barberos'       => array_map(fn($b) => strtoupper($b['nombre']), $listaBarberos),
+        'citas_grid'     => $this->formatearCitasParaGrid($citasBrutas, $listaBarberos),
+        'fecha_actual'   => $fecha,
+        'fecha_texto'    => $fechaFormateada
     ];
 
     return $datos;
@@ -77,24 +83,38 @@ class UsuarioController{
 
 private function formatearCitasParaGrid($citas, $listaBarberos) {
     $formateadas = [];
-
-    // Creamos un diccionario rápido [id => NOMBRE EN MAYÚSCULAS]
-    $diccionarioBarberos = [];
-        foreach($listaBarberos as $b) {
-            $diccionarioBarberos[$b['id']] = strtoupper($b['nombre']);
-        }
+    $dictBarberos = [];
+    
+    // Mapeo dinámico: ID del barbero -> Posición en el grid (Columna)
+    // El Administrador suele ser la columna 2, Luis la 3, etc.
+    foreach($listaBarberos as $index => $b) { 
+        $dictBarberos[$b['id']] = $index + 2; 
+    }
 
     foreach ($citas as $c) {
-        $hora_inicio = date('H:i', strtotime($c['fecha_cita']));
-        // Si no viene hora_fin, asumimos que dura 30 minutos
-        $hora_fin = isset($c['hora_fin']) ? date('H:i', strtotime($c['hora_fin'])) : date('H:i', strtotime($hora_inicio . ' + 30 minutes'));
+        $timestampInicio = strtotime($c['fecha_cita']);
+        $duracionMinutos = (int)$c['duracion_total'];
+        $timestampFin = $timestampInicio + ($duracionMinutos * 60);
+        
+        // Cálculo de fila (09:00 = fila 2, cada 30min = +1 fila)
+        $hora = (int)date('H', $timestampInicio);
+        $minutos = (int)date('i', $timestampInicio);
+        $filaInicio = (($hora - 9) * 2) + ($minutos >= 30 ? 1 : 0) + 2;
+
+        // Lógica de colores según tus clases CSS
+        $color = 'cita-verde'; // Por defecto
+        if ($duracionMinutos > 30 && $duracionMinutos < 60) $color = 'cita-naranja';
+        if ($duracionMinutos >= 60) $color = 'cita-rojo-suave';
+
         $formateadas[] = [
-            'barbero'     => $diccionarioBarberos[$c['id_usuario']] ?? 'DESCONOCIDO',
-            'hora_inicio' => $hora_inicio,
-            'hora_fin'    => $hora_fin,
-            'cliente'     => $c['cliente_nombre'] ?? 'Cliente',
-            'servicio'    => $c['servicio_nombre'] ?? 'Servicio',
-            'color'       => $c['color'] ?? null
+            'columna'     => $dictBarberos[$c['id_usuario']] ?? 2,
+            'fila'        => $filaInicio,
+            'duracion'    => ceil($duracionMinutos / 30),
+            'color_clase' => $color,
+            'cliente'     => strtoupper($c['cliente_nombre']),
+            'servicio'    => $c['servicios_nombres'],
+            'hora_inicio' => date('H:i', $timestampInicio),
+            'hora_fin'    => date('H:i', $timestampFin)
         ];
     }
     return $formateadas;
