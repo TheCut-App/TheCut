@@ -10,6 +10,24 @@ if (!isset($datos)) {
     header("Location: ../../index.php?accion=admin");
     exit;
 }
+// LÓGICA DE FECHAS PARA EL SELECTOR
+$fechaActualStr = $datos['fecha_actual']; // Viene del controlador (ej: '2026-05-01')
+$fechaObj = new DateTime($fechaActualStr);
+
+$meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+$dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+$diaSemana = $dias[$fechaObj->format('w')];
+$diaNum = $fechaObj->format('d');
+$mes = $meses[$fechaObj->format('n') - 1];
+$anio = $fechaObj->format('Y');
+
+$fechaFormateada = strtoupper("$diaSemana, $diaNum $mes $anio");
+
+// Calcular día anterior y siguiente para las flechas
+$fechaActual = $datos['fecha_actual'];
+$prevDate = date('Y-m-d', strtotime($fechaActual . ' - 1 day'));
+$nextDate = date('Y-m-d', strtotime($fechaActual . ' + 1 day'));
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -33,9 +51,23 @@ if (!isset($datos)) {
                 <div class="caja-estadistica">TOTALES: 24</div>
             </div>
             
-            <div class="cabecera-der">
-                <span class="fecha-actual">LUNES, 2 FEB 2026 - 19:45</span>
-                <div class="avatar-admin">AC</div>
+            <div class="cabecera-der" style="display: flex; align-items: center; gap: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <!-- Flecha Izquierda (Día anterior) -->
+                    <a href="index.php?accion=admin&fecha=<?php echo $prevDate; ?>" 
+                    style="color: #d4af37; text-decoration: none; font-size: 1.5rem; line-height: 1; cursor: pointer;">
+                        &#9664;
+                    </a>
+                    
+                    <!-- Fecha del Controlador -->
+                    <span class="fecha-actual"><?php echo $datos['fecha_texto']; ?></span>
+                    
+                    <!-- Flecha Derecha (Día siguiente) -->
+                    <a href="index.php?accion=admin&fecha=<?php echo $nextDate; ?>" 
+                    style="color: #d4af37; text-decoration: none; font-size: 1.5rem; line-height: 1; cursor: pointer;">
+                        &#9654;
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -92,8 +124,8 @@ if (!isset($datos)) {
             </section>
 
             <aside class="menu-lateral">
-                <button class="boton-dorado btn-proxima">
-                    <span class="icono">L</span> PRÓXIMA CITA DISPONIBLE
+                <button id="btnAbrirModal" class="boton-dorado btn-proxima">
+                    PRÓXIMA CITA DISPONIBLE
                 </button>
 
                 <div class="caja-menu">
@@ -117,5 +149,101 @@ if (!isset($datos)) {
             
         </main>
     </div>
+    <!-- Estructura del Popup (Modal) -->
+    <div id="modalProximaCita" class="modal-oculto">
+        <div class="modal-contenido">
+            <span class="cerrar-modal" id="btnCerrarModal">&times;</span>
+            <h2 class="modal-titulo">Buscar Próxima Cita</h2>
+            
+            <div class="modal-cuerpo">
+                <div id="resultadoBusqueda" style="text-align: center; color: #fff; font-size: 1.1rem; min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <p style="color: #ccc;">Buscando el mejor hueco en la agenda...</p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- SEGUNDO POPUP: Confirmar Nueva Cita -->
+    <div id="modalNuevaCita" class="modal-oculto">
+        <div class="modal-contenido">
+            <span class="cerrar-modal" id="btnCerrarModalNueva">&times;</span>
+            <h2 class="modal-titulo">AGENDAR CITA</h2>
+            
+            <div class="modal-cuerpo" style="color: #fff;">
+                <div style="background: #2a2a2a; border-left: 4px solid #d4af37; padding: 15px; margin-bottom: 20px;">
+                    <p style="margin: 0 0 10px 0;"><strong>Barbero:</strong> <span id="txtNuevoBarbero" style="color: #d4af37;"></span></p>
+                    <p style="margin: 0;"><strong>Hora:</strong> <span id="txtNuevaHora" style="color: #d4af37;"></span></p>
+                </div>
+                
+                <p style="text-align: center; color: #ccc; font-style: italic;">(Aquí insertaremos el selector de cliente y servicio en el siguiente paso)</p>
+                
+                <button class="boton-dorado" style="width: 100%; margin-top: 20px;">GUARDAR CITA EN AGENDA</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modalProxima = document.getElementById('modalProximaCita');
+            const modalNueva = document.getElementById('modalNuevaCita');
+            const divResultado = document.getElementById('resultadoBusqueda');
+
+            // Función 1: Buscar hueco
+            function buscarProximoHueco() {
+                divResultado.innerHTML = '<p style="color: #ccc;">Buscando el mejor hueco en la agenda...</p>';
+                
+                fetch('index.php?accion=api_proxima_cita')
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.encontrado) {
+                            divResultado.innerHTML = `
+                                <span style="color: #28a745; font-size: 1.4rem; font-weight: bold; margin-bottom: 15px;">¡Hueco Libre Encontrado!</span>
+                                <div style="background: #2a2a2a; border: 1px solid #d4af37; padding: 15px; border-radius: 8px; width: 100%; margin-bottom: 20px;">
+                                    <strong style="color: #d4af37;">BARBERO:</strong> ${data.barbero}<br>
+                                    <strong style="color: #d4af37;">HORA:</strong> ${data.hora}
+                                </div>
+                                <!-- AHORA LLAMA A UNA FUNCIÓN JS PASANDO LOS DATOS -->
+                                <button onclick="abrirModalGestion('${data.barbero}', '${data.hora}')" class="boton-dorado" style="width: 100%;">
+                                    GESTIONAR ESTE HUECO
+                                </button>
+                            `;
+                        } else {
+                            divResultado.innerHTML = '<span style="color: #dc3545; font-size: 1.2rem;">No hay huecos disponibles hoy.</span>';
+                        }
+                    });
+            }
+
+            // Función 2: Transición entre popups
+            window.abrirModalGestion = function(nombreBarbero, horaAsignada) {
+                // Cerramos el popup 1
+                modalProxima.classList.remove('modal-activo');
+                modalProxima.classList.add('modal-oculto');
+                
+                // Pasamos los datos al popup 2
+                document.getElementById('txtNuevoBarbero').innerText = nombreBarbero;
+                document.getElementById('txtNuevaHora').innerText = horaAsignada;
+                
+                // Abrimos el popup 2
+                modalNueva.classList.remove('modal-oculto');
+                modalNueva.classList.add('modal-activo');
+            };
+
+            // Lógica de apertura y cierre del Modal 1 (Búsqueda)
+            document.getElementById('btnAbrirModal').addEventListener('click', function() {
+                modalProxima.classList.remove('modal-oculto');
+                modalProxima.classList.add('modal-activo');
+                buscarProximoHueco();
+            });
+            document.getElementById('btnCerrarModal').addEventListener('click', function() {
+                modalProxima.classList.remove('modal-activo');
+                modalProxima.classList.add('modal-oculto');
+            });
+
+            // Lógica de cierre del Modal 2 (Gestión)
+            document.getElementById('btnCerrarModalNueva').addEventListener('click', function() {
+                modalNueva.classList.remove('modal-activo');
+                modalNueva.classList.add('modal-oculto');
+            });
+        });
+    </script>
 </body>
 </html>

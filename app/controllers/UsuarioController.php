@@ -119,5 +119,58 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
     }
     return $formateadas;
 }
+// Algoritmo para buscar el primer hueco libre de hoy
+    public function apiProximaCita() {
+        header('Content-Type: application/json');
+        
+        // FORZAMOS LA HORA DE ESPAÑA
+        date_default_timezone_set('Europe/Madrid');
+        
+        $fechaHoy = date('Y-m-d');
+        $timestampActual = time();
+        $minutosActuales = (int)date('i', $timestampActual);
+        
+        if ($minutosActuales > 0 && $minutosActuales <= 30) {
+            $horaInicioBusqueda = date('H:30', $timestampActual);
+        } else {
+            $horaInicioBusqueda = date('H:00', strtotime('+1 hour', $timestampActual));
+        }
 
+        $listaBarberos = $this->usuario->listarBarberos();
+        
+        // (Línea de 'shuffle($listaBarberos);' eliminada)
+        
+        $citasHoy = $this->cita->citasTodosLosBarberosPorFecha($fechaHoy);
+
+        $horas = [];
+        for ($h = 9; $h <= 20; $h++) {
+            $horas[] = sprintf("%02d:00", $h);
+            $horas[] = sprintf("%02d:30", $h);
+        }
+
+        foreach ($horas as $hora) {
+            if ($hora >= $horaInicioBusqueda) {
+                foreach ($listaBarberos as $barbero) {
+                    $ocupado = false;
+                    foreach ($citasHoy as $cita) {
+                        $horaCita = date('H:i', strtotime($cita['fecha_cita']));
+                        if ($cita['id_usuario'] == $barbero['id'] && $horaCita == $hora) {
+                            $ocupado = true;
+                            break;
+                        }
+                    }
+                    if (!$ocupado) {
+                        echo json_encode([
+                            'encontrado' => true, 
+                            'id_barbero' => $barbero['id'],
+                            'barbero' => strtoupper($barbero['nombre']), 
+                            'hora' => $hora
+                        ]);
+                        return;
+                    }
+                }
+            }
+        }
+        echo json_encode(['encontrado' => false]);
+    }
 }
