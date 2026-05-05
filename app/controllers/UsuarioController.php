@@ -68,14 +68,16 @@ class UsuarioController{
 
     $fechaFormateada = "$nombreDia, $diaNum DE $nombreMes $anio";
 
-
     $datos = [
         'totales'        => $this->cita->citasTotalesHoy(),
         'mis_citas'      => $this->cita->citasHoy($_SESSION['user_id']),        
         'barberos'       => array_map(fn($b) => strtoupper($b['nombre']), $listaBarberos),
         'citas_grid'     => $this->formatearCitasParaGrid($citasBrutas, $listaBarberos),
         'fecha_actual'   => $fecha,
-        'fecha_texto'    => $fechaFormateada
+        'fecha_texto'    => $fechaFormateada,
+        // Añadimos estas dos líneas nuevas:
+        'clientes'       => $this->cita->listarClientes(),
+        'servicios'      => $this->cita->listarServicios()
     ];
 
     return $datos;
@@ -172,5 +174,27 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
             }
         }
         echo json_encode(['encontrado' => false]);
+    }
+// Procesa el formulario de nueva cita y recarga el calendario
+    public function procesarNuevaCita() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            
+            $id_barbero = $_POST['id_barbero'] ?? null;
+            $id_cliente = $_POST['id_cliente'] ?? null;
+            $fecha = $_POST['fecha_cita'] ?? null;
+            $hora = $_POST['hora_cita'] ?? null;
+            $servicios = $_POST['servicios'] ?? []; // Recoge el array de checkboxes
+
+            if ($id_barbero && $id_cliente && $fecha && $hora) {
+                // Unimos la fecha y la hora para PostgreSQL (Ej: 2026-05-05 17:30:00)
+                $fecha_hora_exacta = $fecha . ' ' . $hora . ':00';
+                
+                $this->cita->agendarNuevaCita($id_barbero, $id_cliente, $fecha_hora_exacta, $servicios);
+            }
+            
+            // Redirigimos de vuelta al panel de admin, manteniendo el mismo día
+            header("Location: index.php?accion=admin&fecha=" . $fecha);
+            exit;
+        }
     }
 }

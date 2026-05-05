@@ -175,9 +175,48 @@ $nextDate = date('Y-m-d', strtotime($fechaActual . ' + 1 day'));
                     <p style="margin: 0;"><strong>Hora:</strong> <span id="txtNuevaHora" style="color: #d4af37;"></span></p>
                 </div>
                 
-                <p style="text-align: center; color: #ccc; font-style: italic;">(Aquí insertaremos el selector de cliente y servicio en el siguiente paso)</p>
-                
-                <button class="boton-dorado" style="width: 100%; margin-top: 20px;">GUARDAR CITA EN AGENDA</button>
+                <!-- FORMULARIO DE NUEVA CITA -->
+                <form id="formNuevaCita" action="index.php?accion=guardar_cita" method="POST">
+                    <!-- Campos ocultos para enviar al servidor -->
+                    <input type="hidden" id="inputNuevoBarbero" name="id_barbero">
+                    <input type="hidden" id="inputNuevaHora" name="hora_cita">
+                    <input type="hidden" name="fecha_cita" value="<?php echo $datos['fecha_actual']; ?>">
+
+                    <!-- Selector de Cliente -->
+                    <div style="margin-bottom: 15px;">
+                        <label style="color: #d4af37; display: block; margin-bottom: 5px;">Cliente:</label>
+                        <select name="id_cliente" required style="width: 100%; padding: 10px; background: #1a1a1a; color: #fff; border: 1px solid #d4af37; border-radius: 4px;">
+                            <option value="">-- Selecciona un cliente --</option>
+                            <?php foreach($datos['clientes'] as $cli): ?>
+                                <option value="<?php echo $cli['id']; ?>">
+                                    <?php echo htmlspecialchars($cli['nombre'] . ' ' . $cli['apellido_1']); ?> 
+                                    (<?php echo htmlspecialchars($cli['telefono']); ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div style="text-align: right; margin-top: 5px;">
+                            <a href="index.php?accion=nuevo_cliente" style="color: #d4af37; font-size: 0.85rem; text-decoration: none;">+ Crear nuevo cliente</a>
+                        </div>
+                    </div>
+
+                    <!-- Selector de Servicios (Checkboxes) -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #d4af37; display: block; margin-bottom: 5px;">Servicios (puedes marcar varios):</label>
+                        <div style="background: #2a2a2a; border: 1px solid #d4af37; border-radius: 4px; padding: 10px; max-height: 150px; overflow-y: auto;">
+                            <?php foreach($datos['servicios'] as $srv): ?>
+                                <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+                                    <input type="checkbox" name="servicios[]" value="<?php echo $srv['id']; ?>" id="srv_<?php echo $srv['id']; ?>">
+                                    <label for="srv_<?php echo $srv['id']; ?>" style="cursor: pointer;">
+                                        <?php echo htmlspecialchars($srv['nombre']); ?> 
+                                        <span style="color: #d4af37; font-size: 0.9em;">(<?php echo $srv['precio']; ?>€)</span>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="boton-dorado" style="width: 100%;">GUARDAR CITA EN AGENDA</button>
+                </form>                
             </div>
         </div>
     </div>
@@ -202,8 +241,7 @@ $nextDate = date('Y-m-d', strtotime($fechaActual . ' + 1 day'));
                                     <strong style="color: #d4af37;">HORA:</strong> ${data.hora}
                                 </div>
                                 <!-- AHORA LLAMA A UNA FUNCIÓN JS PASANDO LOS DATOS -->
-                                <button onclick="abrirModalGestion('${data.barbero}', '${data.hora}')" class="boton-dorado" style="width: 100%;">
-                                    GESTIONAR ESTE HUECO
+                                    <button onclick="abrirModalGestion(${data.id_barbero}, '${data.barbero}', '${data.hora}')" class="boton-dorado" style="width: 100%;">                                    GESTIONAR ESTE HUECO
                                 </button>
                             `;
                         } else {
@@ -213,20 +251,23 @@ $nextDate = date('Y-m-d', strtotime($fechaActual . ' + 1 day'));
             }
 
             // Función 2: Transición entre popups
-            window.abrirModalGestion = function(nombreBarbero, horaAsignada) {
+            window.abrirModalGestion = function(idBarbero, nombreBarbero, horaAsignada) {
                 // Cerramos el popup 1
                 modalProxima.classList.remove('modal-activo');
                 modalProxima.classList.add('modal-oculto');
                 
-                // Pasamos los datos al popup 2
+                // Textos visuales para el usuario
                 document.getElementById('txtNuevoBarbero').innerText = nombreBarbero;
                 document.getElementById('txtNuevaHora').innerText = horaAsignada;
+
+                // Datos ocultos para el formulario que va a la base de datos
+                document.getElementById('inputNuevoBarbero').value = idBarbero;
+                document.getElementById('inputNuevaHora').value = horaAsignada;
                 
                 // Abrimos el popup 2
                 modalNueva.classList.remove('modal-oculto');
                 modalNueva.classList.add('modal-activo');
             };
-
             // Lógica de apertura y cierre del Modal 1 (Búsqueda)
             document.getElementById('btnAbrirModal').addEventListener('click', function() {
                 modalProxima.classList.remove('modal-oculto');

@@ -69,6 +69,14 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $datos = $usuarioCtrl->mostrarPanelAdmin($fechaUrl);
     
     require_once 'app/views/Adm_Home.php';
+} elseif ($accion === 'guardar_cita') {
+    // Ruta para procesar el formulario del popup
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    
+    $usuarioCtrl = new UsuarioController($conexion);
+    $usuarioCtrl->procesarNuevaCita();
+
 } elseif ($accion === 'api_proxima_cita') {
     // Ruta exclusiva para el AJAX del popup
     require_once 'app/models/Cita.php';
@@ -77,7 +85,7 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuarioCtrl = new UsuarioController($conexion);
     $usuarioCtrl->apiProximaCita();
     exit; // Importante poner exit para que no pinte nada de HTML, solo devuelva datos
-    
+
 } elseif ($accion === 'invitado') {
     
     require_once 'app/views/Inv_Home.php';
