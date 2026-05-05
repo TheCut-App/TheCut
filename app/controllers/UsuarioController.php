@@ -155,12 +155,24 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
                 foreach ($listaBarberos as $barbero) {
                     $ocupado = false;
                     foreach ($citasHoy as $cita) {
-                        $horaCita = date('H:i', strtotime($cita['fecha_cita']));
-                        if ($cita['id_usuario'] == $barbero['id'] && $horaCita == $hora) {
-                            $ocupado = true;
-                            break;
-                        }
-                    }
+    $inicioTimestamp = strtotime($cita['fecha_cita']);
+    $duracionMinutos = (int)$cita['duracion_total'];
+    
+    // Calculamos el timestamp de cuando termina la cita
+    $finTimestamp = $inicioTimestamp + ($duracionMinutos * 60);
+    
+    // Convertimos la hora que estamos comprobando en el bucle principal a timestamp para comparar
+    $horaActualBucleTimestamp = strtotime($fechaHoy . ' ' . $hora);
+
+    if ($cita['id_usuario'] == $barbero['id']) {
+        // La hora está ocupada si:
+        // Es igual al inicio O está entre el inicio y el fin
+        if ($horaActualBucleTimestamp >= $inicioTimestamp && $horaActualBucleTimestamp < $finTimestamp) {
+            $ocupado = true;
+            break;
+        }
+    }
+}
                     if (!$ocupado) {
                         echo json_encode([
                             'encontrado' => true, 
