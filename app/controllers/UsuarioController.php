@@ -209,4 +209,45 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
             exit;
         }
     }
+
+    public function apiHuecosDisponibles() {
+    header('Content-Type: application/json');
+    $id_barbero = $_GET['id_barbero'];
+    $fecha = $_GET['fecha'];
+    $duracionNecesaria = (int)$_GET['duracion'];
+
+    $citas = $this->cita->citasTodosLosBarberosPorFecha($fecha);
+    // Filtrar solo las de este barbero
+    $ocupadas = array_filter($citas, fn($c) => $c['id_usuario'] == $id_barbero);
+
+    $disponibles = [];
+    // Generamos todas las medias horas de 09:00 a 20:30
+    for ($h = 9; $h <= 20; $h++) {
+        foreach (["00", "30"] as $m) {
+            $horaEvaluar = sprintf("%02d:%s", $h, $m);
+            $timestampEvaluar = strtotime("$fecha $horaEvaluar");
+            $timestampFinNecesario = $timestampEvaluar + ($duracionNecesaria * 60);
+
+            // COMPROBACIÓN CLAVE: ¿Este bloque choca con alguna cita?
+            $libre = true;
+            foreach ($ocupadas as $cita) {
+                $inicioCita = strtotime($cita['fecha_cita']);
+                $finCita = $inicioCita + ($cita['duracion_total'] * 60);
+
+                // Hay solape si el bloque nuevo empieza antes de que termine una cita 
+                // Y termina después de que empiece esa misma cita
+                if ($timestampEvaluar < $finCita && $timestampFinNecesario > $inicioCita) {
+                    $libre = false;
+                    break;
+                }
+            }
+            
+            if ($libre && $timestampFinNecesario <= strtotime("$fecha 21:00")) {
+                $disponibles[] = $horaEvaluar;
+            }
+        }
+    }
+    echo json_encode($disponibles);
+    exit;
+}
 }

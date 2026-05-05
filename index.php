@@ -86,6 +86,26 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuarioCtrl->apiProximaCita();
     exit; // Importante poner exit para que no pinte nada de HTML, solo devuelva datos
 
+} elseif ($accion === 'nueva_cita') {
+    // Cargamos los modelos necesarios
+    require_once 'app/models/Cita.php';
+    require_once 'app/models/Usuario.php';
+    require_once 'app/controllers/UsuarioController.php';
+
+    $usuarioCtrl = new UsuarioController($conexion);
+    
+    // Obtenemos los datos para llenar los selectores de la página
+    $datos = $usuarioCtrl->mostrarPanelAdmin(); 
+    
+    // Cargamos la nueva vista
+    require_once 'app/views/Nueva_Cita.php';
+    exit;
+
+} elseif ($accion === 'api_huecos_disponibles') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    $usuarioCtrl = new UsuarioController($conexion);
+    $usuarioCtrl->apiHuecosDisponibles();
 } elseif ($accion === 'invitado') {
     
     require_once 'app/views/Inv_Home.php';

@@ -129,13 +129,13 @@ $nextDate = date('Y-m-d', strtotime($fechaActual . ' + 1 day'));
                 </button>
 
                 <div class="caja-menu">
-                    <div class="caja-titulo">ACCIONES RÁPIDAS</div>
-                    <ul class="caja-lista">
-                        <li>Nueva Cita</li>
-                        <li>Venta</li>
-                        <li>Editar</li>
-                    </ul>
-                </div>
+    <div class="caja-titulo">ACCIONES RÁPIDAS</div>
+    <ul class="caja-lista">
+        <li onclick="window.location.href='index.php?accion=nueva_cita'" style="cursor: pointer;">Nueva Cita</li>
+        <li>Venta</li>
+        <li>Editar</li>
+    </ul>
+</div>
 
                 <div class="caja-menu">
                     <div class="caja-titulo">GESTIÓN GLOBAL</div>
