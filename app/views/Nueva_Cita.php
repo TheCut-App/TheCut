@@ -277,6 +277,50 @@
     // Escuchar cambio de fecha
     document.getElementById('fechaCita').addEventListener('change', buscarHuecosDisponibles);
 });
+
+// Dentro del DOMContentLoaded que ya tienes:
+const btnAgendar = document.querySelector('.btn-agendar'); // O el ID que tenga tu botón verde
+
+btnAgendar.addEventListener('click', async () => {
+    // Recogemos los datos de los inputs ocultos que el JS ya ha ido rellenando
+    const idCliente = document.getElementById('inputCliente').value;
+    const idBarbero = document.getElementById('inputBarbero').value;
+    const fecha = document.getElementById('fechaCita').value;
+    const hora = document.getElementById('inputHora').value;
+    
+    // Obtenemos los IDs de servicios de los checkboxes o inputs ocultos
+    const servicios = Array.from(document.querySelectorAll('input[name="servicios[]"]')).map(i => i.value);
+
+    if (!idCliente || !idBarbero || !hora || servicios.length === 0) {
+        alert("Por favor, completa todos los pasos: Cliente, Servicio, Barbero y Hora.");
+        return;
+    }
+
+    // Enviamos por POST
+    const formData = new FormData();
+    formData.append('id_cliente', idCliente);
+    formData.append('id_usuario', idBarbero); // ID del barbero
+    formData.append('fecha_cita', `${fecha} ${hora}`);
+    servicios.forEach(id => formData.append('servicios[]', id));
+
+    try {
+        const response = await fetch('index.php?accion=agendar_cita', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const resultado = await response.json();
+        if (resultado.success) {
+            alert("¡Cita agendada con éxito!");
+            window.location.href = 'index.php?accion=admin'; // Volvemos al panel principal
+        } else {
+            alert("Error: " + resultado.error);
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Hubo un problema al conectar con el servidor.");
+    }
+});
     </script>
 </body>
 </html>

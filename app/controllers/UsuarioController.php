@@ -250,4 +250,40 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
     echo json_encode($disponibles);
     exit;
 }
+
+public function guardarCita() {
+    header('Content-Type: application/json');
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Unificamos nombres: id_usuario es lo que envía tu JS
+        $id_cliente = $_POST['id_cliente'] ?? null;
+        $posicion_barbero = $_POST['id_usuario'] ?? null;
+        $fecha_completa = $_POST['fecha_cita'] ?? null;
+        $servicios = $_POST['servicios'] ?? [];
+
+        // TRADUCCIÓN: De posición a ID Real
+        $listaBarberos = $this->usuario->listarBarberos();
+        $id_barbero_real = null;
+        foreach($listaBarberos as $index => $b) {
+            if (($index + 1) == (int)$posicion_barbero) {
+                $id_barbero_real = $b['id'];
+                break;
+            }
+        }
+
+        if ($id_barbero_real && $id_cliente && $fecha_completa) {
+            $id_cita = $this->cita->crear($id_cliente, $id_barbero_real, $fecha_completa);
+            if ($id_cita) {
+                foreach ($servicios as $id_servicio) {
+                    $this->cita->vincularServicio($id_cita, $id_servicio);
+                }
+                echo json_encode(['success' => true]);
+                exit;
+            }
+        }
+        
+        echo json_encode(['success' => false, 'error' => 'Error al guardar (Barbero Real: '.$id_barbero_real.')']);
+    }
+    exit;
+}
 }

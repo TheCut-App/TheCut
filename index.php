@@ -113,7 +113,13 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 } elseif ($accion === 'empleado') {
     
     require_once 'app/views/Emp_Home.php';
-    
+
+} elseif ($accion === 'agendar_cita') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    $usuarioCtrl = new UsuarioController($conexion);
+    $usuarioCtrl->guardarCita();
+    exit;  
 } else {
     // Si no se está enviando el formulario ni se pide admin, mostramos el login
     require_once 'app/views/login.php';
