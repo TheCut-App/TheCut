@@ -136,9 +136,9 @@
                     
                     <!-- Pestañas Barberos -->
                     <div style="display: flex; background: var(--gris-carbon);">
-                        <?php foreach($datos['barberos'] as $index => $nombre): ?>
-                            <div class="item-seleccionable barbero-tab" style="flex:1; text-align:center; font-size: 0.8rem;" data-id-barbero="<?= $index + 1 ?>">
-                                <?= $nombre ?>
+                        <?php foreach($datos['barberos_datos'] as $barbero): ?>
+                            <div class="item-seleccionable barbero-tab" style="flex:1; text-align:center; font-size: 0.8rem;" data-id-barbero="<?= $barbero['id'] ?>">
+                                <?= strtoupper($barbero['nombre']) ?>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -282,6 +282,7 @@
 const btnAgendar = document.querySelector('.btn-agendar'); // O el ID que tenga tu botón verde
 
 btnAgendar.addEventListener('click', async () => {
+    event.preventDefault();
     // Recogemos los datos de los inputs ocultos que el JS ya ha ido rellenando
     const idCliente = document.getElementById('inputCliente').value;
     const idBarbero = document.getElementById('inputBarbero').value;

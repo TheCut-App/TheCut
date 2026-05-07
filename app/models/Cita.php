@@ -7,26 +7,27 @@ class Cita {
         $this->db = Database::getConnection();
     }
 
-    //Hace conteo de las citas que tiene ese barbero hoy
-    public function citasHoy($id_usuario) {
+    // Hace conteo de las citas que tiene ese barbero en la fecha seleccionada
+    public function citasHoy($id_usuario, $fecha) {
         $sql = "SELECT COUNT(*) as total 
                 FROM citas 
-                WHERE DATE(fecha_cita) = CURRENT_DATE 
+                WHERE DATE(fecha_cita) = :fecha 
                 AND id_usuario = :id";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id' => $id_usuario]);
+        $stmt->execute(['id' => $id_usuario, 'fecha' => $fecha]);
         $res = $stmt->fetch();
         return $res['total'] ?? 0;
     }
 
-    //Hace conteo de las citas totales de todos los barberos hoy
-   public function citasTotalesHoy() {
+    // Hace conteo de las citas totales de todos los barberos en la fecha seleccionada
+    public function citasTotalesHoy($fecha) {
         $sql = "SELECT COUNT(*) as total 
                 FROM citas 
-                WHERE DATE(fecha_cita) = CURRENT_DATE";
+                WHERE DATE(fecha_cita) = :fecha";
         
-        $stmt = $this->db->query($sql);
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['fecha' => $fecha]);
         $res = $stmt->fetch();
         return $res['total'] ?? 0;
     }

@@ -47,8 +47,8 @@ $nextDate = date('Y-m-d', strtotime($fechaActual . ' + 1 day'));
             </div>
             
             <div class="cabecera-centro">
-                <div class="caja-estadistica">MIS CITAS: 4</div>
-                <div class="caja-estadistica">TOTALES: 24</div>
+                <div class="caja-estadistica">MIS CITAS: <?php echo $datos['mis_citas']; ?></div>
+                <div class="caja-estadistica">TOTALES: <?php echo $datos['totales']; ?></div>
             </div>
             
             <div class="cabecera-der" style="display: flex; align-items: center; gap: 15px;">
