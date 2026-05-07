@@ -119,4 +119,19 @@ class Usuario{
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function obtenerResumenVentasMes($id_barbero) {
+    $inicioMes = date('Y-m-01 00:00:00');
+    $finMes = date('Y-m-t 23:59:59');
+
+    $sql = "SELECT SUM(s.precio) as total_servicios
+            FROM citas c
+            JOIN citas_servicios cs ON c.id = cs.id_cita
+            JOIN servicios s ON cs.id_servicio = s.id
+            WHERE c.id_usuario = :id_barbero 
+            AND c.fecha_cita BETWEEN :inicio AND :fin
+            AND c.estado = 'FINALIZADA'";
+    
+
+}
 }

@@ -120,6 +120,13 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuarioCtrl = new UsuarioController($conexion);
     $usuarioCtrl->guardarCita();
     exit;  
+   
+} elseif ($accion === 'gestion_equipo') {
+    
+    require_once 'app/controllers/UsuarioController.php';
+    $controller = new UsuarioController();
+    $controller->mostrarGestionEquipo();
+
 } else {
     // Si no se está enviando el formulario ni se pide admin, mostramos el login
     require_once 'app/views/login.php';

@@ -1,0 +1,102 @@
+/* Contenedor principal de tarjetas */
+.equipo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+}
+
+/* La Tarjeta (Basada en tu foto) */
+.card-empleado {
+    background: linear-gradient(145deg, #0f1416, #050b0d);
+    border: 1px solid var(--dorado-artdeco);
+    border-radius: 15px;
+    padding: 30px 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Marco circular de la foto */
+.marco-foto {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    border: 3px solid var(--dorado-artdeco);
+    padding: 5px;
+    background: var(--azul-profundo);
+}
+
+.marco-foto img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.nombre-empleado {
+    color: var(--champan);
+    font-family: serif;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+}
+
+.badge-estado {
+    display: inline-block;
+    background-color: #C5A05933; /* Dorado con transparencia */
+    color: var(--dorado-artdeco);
+    border: 1px solid var(--dorado-artdeco);
+    padding: 2px 15px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    margin-bottom: 25px;
+}
+
+/* Sección de estadísticas */
+.stats-contenedor {
+    margin-bottom: 25px;
+}
+
+.stat-line {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    color: var(--champan);
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    opacity: 0.9;
+}
+
+.total-mes {
+    color: var(--champan);
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 10px;
+    border-top: 1px solid rgba(197, 160, 89, 0.2);
+    padding-top: 10px;
+}
+
+/* Botones de acción inferiores */
+.acciones-equipo {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-accion {
+    background: transparent;
+    border: 1px solid #444;
+    color: #999;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s;
+}
+
+.btn-accion:hover {
+    border-color: var(--dorado-artdeco);
+    color: var(--dorado-artdeco);
+    background: rgba(197, 160, 89, 0.1);
+}
