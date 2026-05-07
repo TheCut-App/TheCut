@@ -304,7 +304,12 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-
+.cita-pagada {
+    background-color: #4a4a4a !important;
+    border-left: 4px solid #888 !important;
+    opacity: 0.7;
+    color: #bbb !important;
+}
 /* Animación para que el popup entre suavemente */
 @keyframes aparecerModal {
     from {

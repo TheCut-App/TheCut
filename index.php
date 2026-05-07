@@ -76,7 +76,21 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $usuarioCtrl = new UsuarioController($conexion);
     $usuarioCtrl->procesarNuevaCita();
+} elseif ($accion === 'venta') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
 
+    $usuarioCtrl = new UsuarioController($conexion);
+    $datos = $usuarioCtrl->mostrarPanelVentas(); 
+    
+    require_once 'app/views/Venta.php';
+    exit;
+} elseif ($accion === 'procesar_cobro') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    
+    $usuarioCtrl = new UsuarioController($conexion);
+    $usuarioCtrl->procesarCobro();
 } elseif ($accion === 'api_proxima_cita') {
     // Ruta exclusiva para el AJAX del popup
     require_once 'app/models/Cita.php';

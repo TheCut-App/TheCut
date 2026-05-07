@@ -104,9 +104,15 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
         $filaInicio = (($hora - 9) * 2) + ($minutos >= 30 ? 1 : 0) + 2;
 
         // Lógica de colores según tus clases CSS
-        $color = 'cita-verde'; // Por defecto
-        if ($duracionMinutos > 30 && $duracionMinutos < 60) $color = 'cita-naranja';
-        if ($duracionMinutos >= 60) $color = 'cita-rojo-suave';
+       // Dentro del foreach de formatearCitasParaGrid:
+        $color = 'cita-verde'; 
+
+        if ($c['estado'] === 'Pagado') {
+            $color = 'cita-pagada'; // Clase CSS para ponerlo en gris
+        } else {
+            if ($duracionMinutos > 30 && $duracionMinutos < 60) $color = 'cita-naranja';
+            if ($duracionMinutos >= 60) $color = 'cita-rojo-suave';
+        }
 
         $formateadas[] = [
             'columna'     => $dictBarberos[$c['id_usuario']] ?? 2,
@@ -288,4 +294,17 @@ public function guardarCita() {
 
         return $datos;
     }
+    public function procesarCobro() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $id_cita = $_POST['id_cita'] ?? null;
+        
+        if ($id_cita) {
+            $this->cita->marcarComoPagada($id_cita);
+        }
+        
+        // Volvemos a la pantalla de ventas para seguir cobrando
+        header("Location: index.php?accion=venta");
+        exit;
+    }
+}
 }
