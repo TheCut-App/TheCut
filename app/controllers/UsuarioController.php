@@ -276,4 +276,16 @@ public function guardarCita() {
         }
         exit;
     }
+    // Cargar la vista de ventas con las citas pendientes de hoy
+    public function mostrarPanelVentas() {
+        // Por defecto cargamos las ventas de hoy
+        $fechaHoy = date('Y-m-d');
+        
+        $datos = [
+            'fecha_actual' => $fechaHoy,
+            'citas_pendientes' => $this->cita->obtenerCitasPendientes($fechaHoy)
+        ];
+
+        return $datos;
+    }
 }
