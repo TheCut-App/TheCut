@@ -282,14 +282,14 @@ public function guardarCita() {
         }
         exit;
     }
-    // Cargar la vista de ventas con las citas pendientes de hoy
     public function mostrarPanelVentas() {
-        // Por defecto cargamos las ventas de hoy
         $fechaHoy = date('Y-m-d');
         
         $datos = [
             'fecha_actual' => $fechaHoy,
-            'citas_pendientes' => $this->cita->obtenerCitasPendientes($fechaHoy)
+            'citas_pendientes' => $this->cita->obtenerCitasPendientes($fechaHoy),
+            // AÑADIMOS ESTA LÍNEA PARA CARGAR EL CATÁLOGO:
+            'servicios' => $this->cita->listarServicios() 
         ];
 
         return $datos;
@@ -297,12 +297,13 @@ public function guardarCita() {
     public function procesarCobro() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id_cita = $_POST['id_cita'] ?? null;
+        $metodo = $_POST['metodo_pago'] ?? 'Efectivo';
         
         if ($id_cita) {
             $this->cita->marcarComoPagada($id_cita);
+            // Aquí podrías insertar en una tabla de 'ventas' si quisieras guardar el método de pago
         }
         
-        // Volvemos a la pantalla de ventas para seguir cobrando
         header("Location: index.php?accion=venta");
         exit;
     }

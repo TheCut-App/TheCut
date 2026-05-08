@@ -133,9 +133,11 @@ class Cita {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     public function marcarComoPagada($id_cita) {
-    // Cambiamos el estado a 'Pagado' y el color a gris para el calendario
-    $sql = "UPDATE public.citas SET estado = 'Pagado', color = 'cita-pagada' WHERE id = :id";
+    // Cambiamos el estado y el color para el grid
+    $sql = "UPDATE public.citas 
+            SET estado = 'Pagado', color = 'cita-pagada' 
+            WHERE id = :id";
     $stmt = $this->db->prepare($sql);
     return $stmt->execute(['id' => $id_cita]);
-    }
+}
 }
