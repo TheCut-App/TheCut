@@ -6,19 +6,31 @@
     <link rel="stylesheet" href="public/assets/css/style_admin.css">
     <style>
         :root { --verde-bg: #0b1f18; --dorado: #d4af37; --dorado-oc: #8b733d; --texto: #e0e0e0; }
-        body { background-color: #000; color: var(--texto); font-family: 'Segoe UI', serif; margin: 0; padding: 20px; box-sizing: border-box; height: 100vh; }
+        body { 
+            background-color: #000; color: var(--texto); font-family: 'Segoe UI', serif; 
+            margin: 0; padding: 40px 20px; box-sizing: border-box; 
+            /* Cambiamos height por min-height para que la página pueda crecer hacia abajo */
+            min-height: 100vh; 
+            display: flex; align-items: center; justify-content: center;
+        }
         
         .editar-container {
             width: 100%; max-width: 1200px; 
-            min-height: 85vh; /* CAMBIAMOS height POR min-height */
-            height: auto;     /* AÑADIMOS height: auto */
+            /* Eliminamos min-height fijo y dejamos que el contenido mande */
+            height: auto; 
             margin: 0 auto; background: var(--verde-bg);
-            border: 2px solid var(--dorado); border-radius: 8px; position: relative; padding: 40px;
-            display: flex; flex-direction: column; box-sizing: border-box;
+            border: 2px solid var(--dorado); border-radius: 8px; position: relative; 
+            padding: 40px;
+            display: flex; flex-direction: column; 
+            box-sizing: border-box;
         }
+
+        /* Este es el borde dorado interior, se ajustará siempre al tamaño del contenedor */
         .editar-container::before {
-            content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px;
-            border: 1px solid var(--dorado-oc); border-radius: 4px; pointer-events: none;
+            content: ''; position: absolute; 
+            top: 5px; left: 5px; right: 5px; bottom: 5px;
+            border: 1px solid var(--dorado-oc); border-radius: 4px; 
+            pointer-events: none;
         }
 
         .header-edit { text-align: center; border-bottom: 1px solid var(--dorado-oc); padding-bottom: 20px; margin-bottom: 40px; }
@@ -65,7 +77,9 @@
         /* Botones Abajo integrados */
         .footer-btns { 
             display: flex; justify-content: space-between; align-items: center; 
-            border-top: 1px solid rgba(139, 115, 61, 0.3); padding-top: 30px; margin-top: auto; 
+            border-top: 1px solid rgba(139, 115, 61, 0.3); 
+            padding-top: 30px; 
+            margin-top: 40px; /* Empuja los botones hacia abajo si hay poco contenido */
         }
         .btn-link-del { color: #ff6b6b; background: transparent; border: 1px solid #ff6b6b; padding: 12px 25px; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-weight: bold; }
         .btn-link-del:hover { background: rgba(255, 107, 107, 0.1); }

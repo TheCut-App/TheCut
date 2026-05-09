@@ -104,7 +104,18 @@ class Usuario{
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
+    public function listarBarberosPorFecha($fecha) {
+        $sql = "SELECT u.id, u.username, u.nombre 
+                FROM usuarios u
+                INNER JOIN horarios h ON u.id = h.id_usuario
+                WHERE u.rol = 'barbero' 
+                  AND u.is_active = true 
+                  AND h.fecha = :fecha
+                ORDER BY u.nombre ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['fecha' => $fecha]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     public function obtenerEstadisticasEquipo() {
         $inicioMes = date('Y-m-01 00:00:00');
         $finMes = date('Y-m-t 23:59:59');

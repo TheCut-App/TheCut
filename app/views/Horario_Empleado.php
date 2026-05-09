@@ -53,6 +53,17 @@
         </div>
     </form>
 </div>
-
+<script>
+    // Detectamos si en la URL existe el parámetro msg=ok
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.get('msg') === 'ok') {
+        alert('Horario actualizado correctamente.');
+        
+        // Limpiamos la URL para que el mensaje no vuelva a salir si el usuario refresca la página
+        const nuevaUrl = window.location.href.replace('&msg=ok', '');
+        window.history.replaceState({}, document.title, nuevaUrl);
+    }
+</script>
 </body>
 </html>

@@ -241,4 +241,61 @@ class Cita {
                 
         return $this->db->prepare($sql)->execute(compact('nombre', 'apellido', 'telefono'));
     }
+    public function obtenerEstadisticasClientes($busqueda = '', $limit = 10, $offset = 0) {
+        $filtro = "";
+        if (!empty($busqueda)) {
+            $filtro = "WHERE c.nombre ILIKE :b OR c.apellido_1 ILIKE :b OR c.telefono ILIKE :b";
+        }
+
+        $sql = "SELECT 
+                    c.id, c.nombre, c.apellido_1, c.telefono,
+                    MAX(ci.fecha_cita) as ultima_visita,
+                    COALESCE((
+                        SELECT SUM(s.precio)
+                        FROM citas c2
+                        JOIN citas_servicios cs ON c2.id = cs.id_cita
+                        JOIN servicios s ON cs.id_servicio = s.id
+                        WHERE c2.id_cliente = c.id AND c2.estado = 'Pagado'
+                    ), 0) as total_gastado
+                FROM clientes c
+                LEFT JOIN citas ci ON c.id = ci.id_cliente AND ci.estado IN ('Pagado', 'Completada')
+                $filtro
+                GROUP BY c.id, c.nombre, c.apellido_1, c.telefono
+                ORDER BY total_gastado DESC
+                LIMIT :limit OFFSET :offset";
+                
+        $stmt = $this->db->prepare($sql);
+        if (!empty($busqueda)) $stmt->bindValue(':b', "%$busqueda%");
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function contarTotalClientes($busqueda = '') {
+        $filtro = !empty($busqueda) ? "WHERE nombre ILIKE :b OR apellido_1 ILIKE :b OR telefono ILIKE :b" : "";
+        $sql = "SELECT COUNT(*) FROM clientes $filtro";
+        $stmt = $this->db->prepare($sql);
+        if (!empty($busqueda)) $stmt->bindValue(':b', "%$busqueda%");
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+    public function obtenerClientePorId($id) {
+        $sql = "SELECT * FROM clientes WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function actualizarCliente($id, $nombre, $apellido_1, $telefono, $notas) {
+        $sql = "UPDATE clientes SET nombre = :nombre, apellido_1 = :apellido_1, telefono = :telefono, notas = :notas WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            'id' => $id, 
+            'nombre' => $nombre, 
+            'apellido_1' => $apellido_1, 
+            'telefono' => $telefono, 
+            'notas' => $notas
+        ]);
+    }
 }
