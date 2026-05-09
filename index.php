@@ -91,6 +91,40 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $usuarioCtrl = new UsuarioController($conexion);
     $usuarioCtrl->procesarCobro();
+} elseif ($accion === 'eliminar_cita') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    $usuarioCtrl = new UsuarioController($conexion);
+    
+    if (isset($_GET['id'])) {
+        $cita = new Cita();
+        $cita->eliminarCita($_GET['id']);
+    }
+    header("Location: index.php?accion=admin");
+    exit;
+
+} elseif ($accion === 'confirmar_cita') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    
+    if (isset($_GET['id'])) {
+        $cita = new Cita();
+        $cita->confirmarCita($_GET['id']);
+    }
+    header("Location: index.php?accion=admin");
+    exit;
+} elseif ($accion === 'editar_cita') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    $usuarioCtrl = new UsuarioController($conexion);
+    $usuarioCtrl->mostrarEditarCita($_GET['id']);
+    exit;
+} elseif ($accion === 'actualizar_cita') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    $usuarioCtrl = new UsuarioController($conexion);
+    $usuarioCtrl->actualizarCita();
+    exit;
 } elseif ($accion === 'api_proxima_cita') {
     // Ruta exclusiva para el AJAX del popup
     require_once 'app/models/Cita.php';

@@ -115,6 +115,8 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
         }
 
         $formateadas[] = [
+            'id'          => $c['id'], 
+            'estado'      => $c['estado'],
             'columna'     => $dictBarberos[$c['id_usuario']] ?? 2,
             'fila'        => $filaInicio,
             'duracion'    => ceil($duracionMinutos / 30),
@@ -257,55 +259,91 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
     exit;
 }
 
-public function guardarCita() {
-        header('Content-Type: application/json');
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id_cliente = $_POST['id_cliente'] ?? null;
-            // Como ya nos llega el ID real, no hace falta buscar su posición
-            $id_barbero_real = $_POST['id_usuario'] ?? null; 
-            $fecha_completa = $_POST['fecha_cita'] ?? null;
-            $servicios = $_POST['servicios'] ?? [];
+    public function guardarCita() {
+            header('Content-Type: application/json');
+            
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $id_cliente = $_POST['id_cliente'] ?? null;
+                // Como ya nos llega el ID real, no hace falta buscar su posición
+                $id_barbero_real = $_POST['id_usuario'] ?? null; 
+                $fecha_completa = $_POST['fecha_cita'] ?? null;
+                $servicios = $_POST['servicios'] ?? [];
 
-            if ($id_barbero_real && $id_cliente && $fecha_completa) {
-                // Usamos la función de transacción de Cita.php para guardar todo de golpe
-                $exito = $this->cita->agendarNuevaCita($id_barbero_real, $id_cliente, $fecha_completa, $servicios);
-                
-                if ($exito) {
-                    echo json_encode(['success' => true]);
-                    exit;
+                if ($id_barbero_real && $id_cliente && $fecha_completa) {
+                    // Usamos la función de transacción de Cita.php para guardar todo de golpe
+                    $exito = $this->cita->agendarNuevaCita($id_barbero_real, $id_cliente, $fecha_completa, $servicios);
+                    
+                    if ($exito) {
+                        echo json_encode(['success' => true]);
+                        exit;
+                    }
                 }
+                
+                // Si algo falla o faltan datos
+                echo json_encode(['success' => false, 'error' => 'Error al guardar la cita en la base de datos.']);
+            }
+            exit;
+        }
+        public function mostrarPanelVentas() {
+            $fechaHoy = date('Y-m-d');
+            
+            $datos = [
+                'fecha_actual' => $fechaHoy,
+                'citas_pendientes' => $this->cita->obtenerCitasPendientes($fechaHoy),
+                // AÑADIMOS ESTA LÍNEA PARA CARGAR EL CATÁLOGO:
+                'servicios' => $this->cita->listarServicios() 
+            ];
+
+            return $datos;
+        }
+        public function procesarCobro() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id_cita = $_POST['id_cita'] ?? null;
+            $metodo = $_POST['metodo_pago'] ?? 'Efectivo';
+            
+            if ($id_cita) {
+                $this->cita->marcarComoPagada($id_cita);
+                // Aquí podrías insertar en una tabla de 'ventas' si quisieras guardar el método de pago
             }
             
-            // Si algo falla o faltan datos
-            echo json_encode(['success' => false, 'error' => 'Error al guardar la cita en la base de datos.']);
+            header("Location: index.php?accion=venta");
+            exit;
         }
-        exit;
     }
-    public function mostrarPanelVentas() {
-        $fechaHoy = date('Y-m-d');
+    public function mostrarEditarCita($id_cita) {
+        $detalle = $this->cita->obtenerDetalleCita($id_cita);
         
+        if (!$detalle) {
+            header("Location: index.php?accion=admin");
+            exit;
+        }
+
         $datos = [
-            'fecha_actual' => $fechaHoy,
-            'citas_pendientes' => $this->cita->obtenerCitasPendientes($fechaHoy),
-            // AÑADIMOS ESTA LÍNEA PARA CARGAR EL CATÁLOGO:
-            'servicios' => $this->cita->listarServicios() 
+            'cita'      => $detalle,
+            'barberos'  => $this->usuario->listarBarberos(),
+            'servicios' => $this->cita->listarServicios() // Por si quiere añadir nuevos
         ];
 
-        return $datos;
+        require_once 'app/views/Editar_Cita.php';
     }
-    public function procesarCobro() {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $id_cita = $_POST['id_cita'] ?? null;
-        $metodo = $_POST['metodo_pago'] ?? 'Efectivo';
-        
-        if ($id_cita) {
-            $this->cita->marcarComoPagada($id_cita);
-            // Aquí podrías insertar en una tabla de 'ventas' si quisieras guardar el método de pago
+    // Procesa el formulario de edición de cita
+    public function actualizarCita() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id_cita = $_POST['id_cita'] ?? null;
+            $id_usuario = $_POST['id_usuario'] ?? null;
+            $fecha = $_POST['fecha'] ?? null;
+            $hora = $_POST['hora'] ?? null;
+            $notas = $_POST['notas'] ?? '';
+            $servicios = $_POST['servicios'] ?? [];
+
+            if ($id_cita && $id_usuario && $fecha && $hora) {
+                $fecha_hora_exacta = $fecha . ' ' . $hora . ':00';
+                $this->cita->actualizarCitaCompleta($id_cita, $id_usuario, $fecha_hora_exacta, $notas, $servicios);
+            }
+            
+            // Volvemos al panel manteniendo la fecha que hemos editado
+            header("Location: index.php?accion=admin&fecha=" . $fecha);
+            exit;
         }
-        
-        header("Location: index.php?accion=venta");
-        exit;
     }
-}
 }

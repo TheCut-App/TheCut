@@ -88,7 +88,7 @@
     <div class="admin-contenedor">
         <header class="admin-cabecera">
             <div class="cabecera-izq">
-                <img src="public/img/logo.png" class="logo-pequeno">
+                <img src="../../public/assets/img/logo.png" alt="Logo" class="logo-pequeno">
                 <h1 class="titulo-admin">NUEVA CITA</h1>
             </div>
             <a href="index.php?accion=admin" class="boton-dorado" style="text-decoration: none; padding: 10px 20px;">VOLVER</a>
@@ -173,6 +173,26 @@
     const listaHoras = document.querySelector('#listaHoras');
 
     // 1. LÓGICA DE CLIENTES
+    
+    // A) Buscador de clientes en tiempo real
+    const buscadorCliente = document.getElementById('buscarCliente');
+    if(buscadorCliente) {
+        buscadorCliente.addEventListener('input', function() {
+            const textoBusqueda = this.value.toLowerCase();
+            const itemsClientes = document.querySelectorAll('#listaClientes .item-seleccionable');
+
+            itemsClientes.forEach(item => {
+                const nombreCliente = item.innerText.toLowerCase();
+                if (nombreCliente.includes(textoBusqueda)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // B) Seleccionar cliente al hacer clic
     document.querySelectorAll('#listaClientes .item-seleccionable').forEach(item => {
         item.addEventListener('click', function() {
             document.querySelectorAll('#listaClientes .item-seleccionable').forEach(i => i.classList.remove('activo'));
@@ -193,14 +213,15 @@
                 serviciosSeleccionados.push({
                     id: id,
                     nombre: this.innerText.split('\n')[0],
-                    duracion: parseInt(this.dataset.duracion)
+                    duracion: parseInt(this.dataset.duracion),
+                    precio: parseFloat(this.dataset.precio) // Guardamos el precio
                 });
             } else {
                 serviciosSeleccionados = serviciosSeleccionados.filter(s => s.id !== id);
             }
             actualizarInputsServicios();
             actualizarResumen();
-            buscarHuecosDisponibles(); // Consultar disponibilidad al cambiar tiempo
+            buscarHuecosDisponibles();
         });
     });
 
@@ -230,8 +251,11 @@
         
         if (serviciosSeleccionados.length > 0) {
             const totalMin = serviciosSeleccionados.reduce((acc, s) => acc + s.duracion, 0);
+            const totalPrecio = serviciosSeleccionados.reduce((acc, s) => acc + s.precio, 0); // Sumamos precios
             const nombres = serviciosSeleccionados.map(s => s.nombre).join(' + ');
-            texto += `${nombres} (${totalMin} min) | `;
+            
+            // Añadimos el precio al texto del resumen
+            texto += `${nombres} (${totalMin} min) - <span style="color: var(--dorado-artdeco); font-weight: bold;">${totalPrecio.toFixed(2)}€</span> | `;
         }
 
         if (barberoSeleccionado) texto += `Barbero: ${barberoSeleccionado.nombre}`;

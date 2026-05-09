@@ -139,5 +139,99 @@ class Cita {
             WHERE id = :id";
     $stmt = $this->db->prepare($sql);
     return $stmt->execute(['id' => $id_cita]);
-}
+    }
+    // Confirma la cita (puedes cambiar el color para que se vea distinta en el grid)
+    public function confirmarCita($id_cita) {
+        $sql = "UPDATE public.citas SET estado = 'Completada', color = 'cita-verde' WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['id' => $id_cita]);
+    }
+
+    // Elimina la cita liberando el hueco
+    public function eliminarCita($id_cita) {
+        try {
+            $this->db->beginTransaction();
+            // Primero borramos los servicios vinculados para no tener error de claves foráneas
+            $stmt1 = $this->db->prepare("DELETE FROM public.citas_servicios WHERE id_cita = :id");
+            $stmt1->execute(['id' => $id_cita]);
+            
+            // Luego borramos la cita
+            $stmt2 = $this->db->prepare("DELETE FROM public.citas WHERE id = :id");
+            $stmt2->execute(['id' => $id_cita]);
+            
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            return false;
+        }
+    }
+    // Obtiene todos los detalles de una cita específica para editarla
+    public function obtenerDetalleCita($id_cita) {
+        // Hemos eliminado 'cl.email AS cliente_email' de la consulta
+        $sql = "SELECT 
+                    c.*, 
+                    cl.nombre AS cliente_nombre, cl.apellido_1 AS cliente_apellido, 
+                    cl.telefono AS cliente_tlf,
+                    COALESCE(SUM(s.duracion), 0) AS duracion_total
+                FROM public.citas c
+                JOIN public.clientes cl ON c.id_cliente = cl.id
+                LEFT JOIN public.citas_servicios cs ON c.id = cs.id_cita
+                LEFT JOIN public.servicios s ON cs.id_servicio = s.id
+                WHERE c.id = :id
+                GROUP BY c.id, cl.id";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id_cita]);
+        $cita = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($cita) {
+            $sqlSrv = "SELECT s.* FROM servicios s 
+                       JOIN citas_servicios cs ON s.id = cs.id_servicio 
+                       WHERE cs.id_cita = :id";
+            $stmtSrv = $this->db->prepare($sqlSrv);
+            $stmtSrv->execute(['id' => $id_cita]);
+            $cita['servicios_contratados'] = $stmtSrv->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return $cita;
+    }
+    // Actualiza todos los datos de la cita y sus servicios
+    public function actualizarCitaCompleta($id_cita, $id_barbero, $fecha_hora, $notas, $servicios) {
+        try {
+            $this->db->beginTransaction();
+
+            // 1. Actualizamos los datos principales (no tocamos el estado)
+            $sql = "UPDATE public.citas SET id_usuario = :id_usuario, fecha_cita = :fecha, notas = :notas WHERE id = :id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                'id_usuario' => $id_barbero,
+                'fecha' => $fecha_hora,
+                'notas' => $notas,
+                'id' => $id_cita
+            ]);
+
+            // 2. Borramos los servicios que tuviera antes
+            $stmtDel = $this->db->prepare("DELETE FROM public.citas_servicios WHERE id_cita = :id");
+            $stmtDel->execute(['id' => $id_cita]);
+
+            // 3. Insertamos los nuevos servicios que haya marcado
+            if (!empty($servicios)) {
+                $sqlSrv = "INSERT INTO public.citas_servicios (id_cita, id_servicio) VALUES (:id_cita, :id_servicio)";
+                $stmtSrv = $this->db->prepare($sqlSrv);
+                foreach ($servicios as $id_srv) {
+                    $stmtSrv->execute([
+                        'id_cita' => $id_cita,
+                        'id_servicio' => $id_srv
+                    ]);
+                }
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            return false;
+        }
+    }
 }
