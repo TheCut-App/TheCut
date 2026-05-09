@@ -178,13 +178,24 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once 'app/models/Cita.php';
     require_once 'app/controllers/UsuarioController.php';
     (new UsuarioController($conexion))->procesarNuevoCliente();
-    exit;   
-} elseif ($accion === 'gestion_equipo') {
-    
+    exit; 
+} elseif ($accion === 'nuevo_empleado') {
+    require_once 'app/models/Usuario.php';
     require_once 'app/controllers/UsuarioController.php';
-    $controller = new UsuarioController();
-    $controller->mostrarGestionEquipo();
+    (new UsuarioController($conexion))->mostrarNuevoEmpleado();
+    exit;
 
+} elseif ($accion === 'guardar_empleado') {
+    require_once 'app/models/Usuario.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->guardarNuevoEmpleado();
+    exit;      
+} elseif ($accion === 'gestion_equipo') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/models/Usuario.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->mostrarGestionEquipo();
+    exit;
 } else {
     // Si no se está enviando el formulario ni se pide admin, mostramos el login
     require_once 'app/views/login.php';

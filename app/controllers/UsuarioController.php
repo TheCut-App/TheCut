@@ -369,4 +369,33 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
             exit;
         }
     }
+
+    public function mostrarGestionEquipo() {
+        $datos = [
+            'empleados' => $this->usuario->obtenerEstadisticasEquipo()
+        ];
+        
+        require_once 'app/views/Gestion_Equipo.php';
+    }
+
+    public function mostrarNuevoEmpleado() {
+        require_once 'app/views/Nuevo_Empleado.php';
+    }
+
+    public function guardarNuevoEmpleado() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nombre = trim($_POST['nombre'] ?? '');
+            $apellido = trim($_POST['apellido'] ?? '');
+            $username = trim($_POST['username'] ?? '');
+            $password = trim($_POST['password'] ?? '');
+
+            if (!empty($nombre) && !empty($username) && !empty($password)) {
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+                $this->usuario->crearUsuario($username, $hash, $nombre, $apellido);
+            }
+            
+            header("Location: index.php?accion=gestion_equipo");
+            exit;
+        }
+    }
 }

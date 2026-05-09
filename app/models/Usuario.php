@@ -120,18 +120,35 @@ class Usuario{
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function obtenerResumenVentasMes($id_barbero) {
-    $inicioMes = date('Y-m-01 00:00:00');
-    $finMes = date('Y-m-t 23:59:59');
+    public function obtenerEstadisticasEquipo() {
+        $inicioMes = date('Y-m-01 00:00:00');
+        $finMes = date('Y-m-t 23:59:59');
 
-    $sql = "SELECT SUM(s.precio) as total_servicios
-            FROM citas c
-            JOIN citas_servicios cs ON c.id = cs.id_cita
-            JOIN servicios s ON cs.id_servicio = s.id
-            WHERE c.id_usuario = :id_barbero 
-            AND c.fecha_cita BETWEEN :inicio AND :fin
-            AND c.estado = 'FINALIZADA'";
-    
+        $sql = "SELECT 
+                    u.id, 
+                    u.nombre, 
+                    u.url_foto,
+                    COALESCE(SUM(s.precio), 0) as total_servicios
+                FROM usuarios u
+                LEFT JOIN citas c ON u.id = c.id_usuario 
+                    AND c.fecha_cita BETWEEN :inicio AND :fin 
+                    AND c.estado IN ('Pagado', 'Completada')
+                LEFT JOIN citas_servicios cs ON c.id = cs.id_cita
+                LEFT JOIN servicios s ON cs.id_servicio = s.id
+                WHERE u.rol = 'barbero' AND u.is_active = true
+                GROUP BY u.id, u.nombre, u.url_foto
+                ORDER BY u.nombre ASC";
 
-}
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['inicio' => $inicioMes, 'fin' => $finMes]);
+        $empleados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($empleados as &$emp) {
+            $emp['total_productos'] = 0; // Pendiente de crear la tabla de ventas de productos
+            $emp['total_mes'] = $emp['total_servicios'] + $emp['total_productos'];
+        }
+
+        return $empleados;
+    }
+
 }

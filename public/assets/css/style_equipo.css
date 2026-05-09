@@ -1,102 +1,159 @@
-/* Contenedor principal de tarjetas */
-.equipo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 30px;
-    padding: 20px 0;
+:root {
+    --azul-profundo: #050B0D;
+    --dorado-artdeco: #C5A059;
+    --champan: #E9D5B3;
+    --dorado-brillante: #D4AF37;
+    --gris-carbon: #1A1D20;
 }
 
-/* La Tarjeta (Basada en tu foto) */
-.card-empleado {
-    background: linear-gradient(145deg, #0f1416, #050b0d);
+body {
+    background-color: var(--azul-profundo);
+    color: var(--champan);
+    font-family: 'Segoe UI', serif;
+    margin: 0;
+    padding: 40px 20px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    box-sizing: border-box;
+}
+
+.panel-equipo {
+    width: 100%;
+    max-width: 1400px;
+    background: var(--gris-carbon);
+    border: 2px solid var(--dorado-artdeco);
+    border-radius: 8px;
+    padding: 40px;
+    position: relative;
+    box-sizing: border-box;
+    height: auto;
+}
+
+.panel-equipo::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 8px; right: 8px; bottom: 8px;
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+.cabecera-equipo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(197, 160, 89, 0.3);
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+}
+
+.cabecera-equipo h1 {
+    color: var(--dorado-brillante);
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.cabecera-botones { display: flex; align-items: center; gap: 20px; }
+
+.btn-nuevo {
+    background: transparent;
+    border: 1px solid #4CAF50;
+    color: #4CAF50;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+.btn-nuevo:hover { background: rgba(76, 175, 80, 0.1); }
+
+.btn-volver {
+    color: var(--dorado-artdeco);
+    text-decoration: none;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.grid-empleados {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.tarjeta-empleado {
+    background: var(--azul-profundo);
     border: 1px solid var(--dorado-artdeco);
-    border-radius: 15px;
+    border-radius: 8px;
     padding: 30px 20px;
     text-align: center;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: 0.3s;
 }
 
-/* Marco circular de la foto */
-.marco-foto {
-    width: 140px;
-    height: 140px;
-    margin: 0 auto 20px;
+.tarjeta-empleado:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.1);
+}
+
+.foto-perfil {
+    width: 130px; height: 130px;
     border-radius: 50%;
     border: 3px solid var(--dorado-artdeco);
-    padding: 5px;
-    background: var(--azul-profundo);
-}
-
-.marco-foto img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
     object-fit: cover;
+    margin-bottom: 15px;
+    background: #000;
 }
 
 .nombre-empleado {
-    color: var(--champan);
-    font-family: serif;
+    color: var(--dorado-brillante);
+    font-size: 1.6rem;
     letter-spacing: 2px;
-    margin-bottom: 5px;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    font-weight: normal;
 }
 
-.badge-estado {
-    display: inline-block;
-    background-color: #C5A05933; /* Dorado con transparencia */
-    color: var(--dorado-artdeco);
-    border: 1px solid var(--dorado-artdeco);
-    padding: 2px 15px;
+.etiqueta-activo {
+    background: var(--dorado-artdeco);
+    color: var(--azul-profundo);
+    padding: 4px 15px;
     border-radius: 20px;
-    font-size: 0.75rem;
-    margin-bottom: 25px;
-}
-
-/* Sección de estadísticas */
-.stats-contenedor {
-    margin-bottom: 25px;
-}
-
-.stat-line {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    color: var(--champan);
-    font-size: 0.9rem;
-    margin-bottom: 5px;
-    opacity: 0.9;
-}
-
-.total-mes {
-    color: var(--champan);
-    font-size: 1.1rem;
     font-weight: bold;
-    margin-top: 10px;
-    border-top: 1px solid rgba(197, 160, 89, 0.2);
-    padding-top: 10px;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
 }
 
-/* Botones de acción inferiores */
-.acciones-equipo {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+.estadisticas {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 30px;
+    color: var(--champan);
 }
+
+.estadisticas span { color: var(--dorado-brillante); }
+
+.contenedor-botones { display: flex; justify-content: center; gap: 10px; }
 
 .btn-accion {
     background: transparent;
-    border: 1px solid #444;
-    color: #999;
-    padding: 6px 12px;
+    border: 1px solid var(--dorado-artdeco);
+    color: var(--champan);
+    padding: 8px 15px;
     border-radius: 4px;
     cursor: pointer;
+    text-transform: uppercase;
     font-size: 0.8rem;
-    transition: all 0.3s;
+    transition: 0.3s;
 }
 
 .btn-accion:hover {
-    border-color: var(--dorado-artdeco);
-    color: var(--dorado-artdeco);
-    background: rgba(197, 160, 89, 0.1);
+    background: var(--dorado-artdeco);
+    color: var(--azul-profundo);
 }
