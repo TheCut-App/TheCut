@@ -108,7 +108,7 @@
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <button type="button" class="boton-dorado" style="border-radius: 0;">+ NUEVO CLIENTE</button>
+                    <button type="button" class="boton-dorado" style="border-radius: 0;" onclick="window.location.href='index.php?accion=nuevo_cliente'">+ NUEVO CLIENTE</button>
                 </div>
 
                 <!-- 2. SERVICIO -->

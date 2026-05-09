@@ -168,7 +168,17 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuarioCtrl = new UsuarioController($conexion);
     $usuarioCtrl->guardarCita();
     exit;  
-   
+} elseif ($accion === 'nuevo_cliente') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->mostrarFormularioNuevoCliente();
+    exit;
+
+} elseif ($accion === 'guardar_cliente') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->procesarNuevoCliente();
+    exit;   
 } elseif ($accion === 'gestion_equipo') {
     
     require_once 'app/controllers/UsuarioController.php';

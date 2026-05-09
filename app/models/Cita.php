@@ -234,4 +234,11 @@ class Cita {
             return false;
         }
     }
+
+    public function registrarClienteBasico($nombre, $apellido, $telefono) {
+        $sql = "INSERT INTO public.clientes (nombre, apellido_1, telefono, fecha_alta) 
+                VALUES (:nombre, :apellido, :telefono, CURRENT_DATE)";
+                
+        return $this->db->prepare($sql)->execute(compact('nombre', 'apellido', 'telefono'));
+    }
 }

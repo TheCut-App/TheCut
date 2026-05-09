@@ -346,4 +346,27 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
             exit;
         }
     }
+
+    public function mostrarFormularioNuevoCliente() {
+        require_once 'app/views/Nuevo_Cliente.php';
+    }
+
+    public function procesarNuevoCliente() {
+        $esPeticionValida = $_SERVER['REQUEST_METHOD'] === 'POST';
+        
+        if ($esPeticionValida) {
+            $nombre = trim($_POST['nombre'] ?? '');
+            $apellido = trim($_POST['apellido'] ?? '');
+            $telefono = trim($_POST['telefono'] ?? '');
+
+            $datosRequeridosCompletos = !empty($nombre) && !empty($telefono);
+
+            if ($datosRequeridosCompletos) {
+                $this->cita->registrarClienteBasico($nombre, $apellido, $telefono);
+            }
+            
+            header("Location: index.php?accion=nueva_cita");
+            exit;
+        }
+    }
 }
