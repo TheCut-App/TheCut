@@ -9,40 +9,25 @@ class Usuario{
 
     //Obligatorio parametros username, password, nombre, apellido_1
     public function crearUsuario($username, $password, $nombre, $apellido_1, $apellido_2 = null, $is_admin = false, $url_foto = null) {
-    
         $sql = "INSERT INTO usuarios (
-                    username, 
-                    password, 
-                    nombre, 
-                    apellido_1, 
-                    apellido_2, 
-                    is_admin, 
-                    is_active, 
-                    url_foto, 
-                    fecha_alta
+                    username, password, nombre, apellido_1, apellido_2, 
+                    is_admin, is_active, url_foto, fecha_alta, rol
                 ) VALUES (
-                    :username, 
-                    :password, 
-                    :nombre, 
-                    :apellido_1, 
-                    :apellido_2, 
-                    :is_admin, 
-                    true, 
-                    :url_foto, 
-                    CURRENT_DATE
+                    :username, :password, :nombre, :apellido_1, :apellido_2, 
+                    :is_admin, true, :url_foto, CURRENT_DATE, 'barbero'
                 )";
         
         $stmt = $this->db->prepare($sql);
         
         return $stmt->execute([
-    'username'   => $username,
-    'password'   => $password,
-    'nombre'     => $nombre,
-    'apellido_1' => $apellido_1,
-    'apellido_2' => $apellido_2,
-    'is_admin'   => $is_admin ? 1 : 0, 
-    'url_foto'   => $url_foto
-]);
+            'username'   => $username,
+            'password'   => $password,
+            'nombre'     => $nombre,
+            'apellido_1' => $apellido_1,
+            'apellido_2' => $apellido_2,
+            'is_admin'   => $is_admin ? 1 : 0, 
+            'url_foto'   => $url_foto
+        ]);
     }
 
     //Obligatorio parametros id, username, password, nombre, apellido_1
@@ -149,6 +134,69 @@ class Usuario{
         }
 
         return $empleados;
+    }
+
+    public function obtenerUsuarioPorId($id) {
+        $sql = "SELECT * FROM usuarios WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function actualizarUsuarioCompleto($id, $nombre, $apellido_1, $apellido_2, $username, $password, $is_admin, $is_active) {
+        $sql = "UPDATE usuarios SET 
+                    nombre = :nombre, 
+                    apellido_1 = :apellido_1, 
+                    apellido_2 = :apellido_2, 
+                    username = :username, 
+                    password = :password, 
+                    is_admin = :is_admin, 
+                    is_active = :is_active 
+                WHERE id = :id";
+        
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            'id' => $id,
+            'nombre' => $nombre,
+            'apellido_1' => $apellido_1,
+            'apellido_2' => $apellido_2,
+            'username' => $username,
+            'password' => $password,
+            'is_admin' => $is_admin ? 1 : 0,
+            'is_active' => $is_active ? 1 : 0
+        ]);
+    }
+
+    public function obtenerFechasLaborables($id_usuario, $fecha_inicio, $fecha_fin) {
+        $sql = "SELECT fecha FROM horarios WHERE id_usuario = :id AND fecha BETWEEN :inicio AND :fin";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id_usuario, 'inicio' => $fecha_inicio, 'fin' => $fecha_fin]);
+        $resultados = $stmt->fetchAll(PDO::FETCH_COLUMN); 
+        
+        // Convertimos la fecha a formato estricto Y-m-d para que coincida perfectamente con los botones
+        return array_map(function($f) {
+            return date('Y-m-d', strtotime($f));
+        }, $resultados);
+    }
+
+    public function actualizarFechasLaborables($id_usuario, $fechas_activas, $fecha_inicio, $fecha_fin) {
+        try {
+            $stmtDel = $this->db->prepare("DELETE FROM horarios WHERE id_usuario = :id AND fecha BETWEEN :inicio AND :fin");
+            $stmtDel->execute(['id' => $id_usuario, 'inicio' => $fecha_inicio, 'fin' => $fecha_fin]);
+
+            if (!empty($fechas_activas)) {
+                $sqlInsert = "INSERT INTO horarios (id_usuario, fecha) VALUES (:id, :fecha)";
+                $stmtInsert = $this->db->prepare($sqlInsert);
+                
+                foreach ($fechas_activas as $fecha) {
+                    $stmtInsert->execute(['id' => $id_usuario, 'fecha' => $fecha]);
+                }
+            }
+            return true;
+        } catch (PDOException $e) {
+            // Si hay un error, paralizamos la pantalla en blanco para que veas el fallo exacto
+            die("ERROR AL GUARDAR EN SUPABASE: " . $e->getMessage());
+        }
     }
 
 }

@@ -180,12 +180,14 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     (new UsuarioController($conexion))->procesarNuevoCliente();
     exit; 
 } elseif ($accion === 'nuevo_empleado') {
+    require_once 'app/models/Cita.php';
     require_once 'app/models/Usuario.php';
     require_once 'app/controllers/UsuarioController.php';
     (new UsuarioController($conexion))->mostrarNuevoEmpleado();
     exit;
 
 } elseif ($accion === 'guardar_empleado') {
+    require_once 'app/models/Cita.php';
     require_once 'app/models/Usuario.php';
     require_once 'app/controllers/UsuarioController.php';
     (new UsuarioController($conexion))->guardarNuevoEmpleado();
@@ -196,6 +198,31 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once 'app/controllers/UsuarioController.php';
     (new UsuarioController($conexion))->mostrarGestionEquipo();
     exit;
+} elseif ($accion === 'editar_empleado') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/models/Usuario.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->mostrarEditarEmpleado($_GET['id']);
+    exit;
+} elseif ($accion === 'actualizar_empleado') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/models/Usuario.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->actualizarEmpleado();
+    exit;   
+} elseif ($accion === 'horario_empleado') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/models/Usuario.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->mostrarHorarioEmpleado($_GET['id']);
+    exit;
+
+} elseif ($accion === 'guardar_horario') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/models/Usuario.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->guardarHorarioEmpleado();
+    exit;   
 } else {
     // Si no se está enviando el formulario ni se pide admin, mostramos el login
     require_once 'app/views/login.php';

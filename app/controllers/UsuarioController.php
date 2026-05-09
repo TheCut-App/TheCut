@@ -390,11 +390,82 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
             $password = trim($_POST['password'] ?? '');
 
             if (!empty($nombre) && !empty($username) && !empty($password)) {
-                $hash = password_hash($password, PASSWORD_DEFAULT);
-                $this->usuario->crearUsuario($username, $hash, $nombre, $apellido);
+                $this->usuario->crearUsuario($username, $password, $nombre, $apellido);
             }
             
             header("Location: index.php?accion=gestion_equipo");
+            exit;
+        }
+    }
+
+    public function mostrarEditarEmpleado($id) {
+        $empleado = $this->usuario->obtenerUsuarioPorId($id);
+        if (!$empleado) {
+            header("Location: index.php?accion=gestion_equipo");
+            exit;
+        }
+        require_once 'app/views/Editar_Empleado.php';
+    }
+
+    public function actualizarEmpleado() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id_usuario'];
+            $nombre = $_POST['nombre'];
+            $apellido_1 = $_POST['apellido_1'];
+            $apellido_2 = $_POST['apellido_2'];
+            $username = $_POST['username'];
+            $password = $_POST['password'];
+            $is_admin = isset($_POST['is_admin']);
+            $is_active = isset($_POST['is_active']);
+
+            $this->usuario->actualizarUsuarioCompleto($id, $nombre, $apellido_1, $apellido_2, $username, $password, $is_admin, $is_active);
+            header("Location: index.php?accion=gestion_equipo");
+            exit;
+        }
+    }
+
+    public function mostrarHorarioEmpleado($id) {
+        $empleado = $this->usuario->obtenerUsuarioPorId($id);
+        if (!$empleado) {
+            header("Location: index.php?accion=gestion_equipo");
+            exit;
+        }
+        
+        // Calcular la semana seleccionada (por defecto la actual)
+        $fecha_ref = $_GET['semana'] ?? date('Y-m-d');
+        $dt = new DateTime($fecha_ref);
+        
+        // Ajustar al Lunes de esa semana
+        $diaSemana = $dt->format('N'); // 1 (Lunes) a 7 (Domingo)
+        $dt->modify('-' . ($diaSemana - 1) . ' days');
+        $lunes = $dt->format('Y-m-d');
+        
+        // Calcular el Domingo
+        $domingo = (clone $dt)->modify('+6 days')->format('Y-m-d');
+        
+        // Navegación (Semanas anterior y siguiente)
+        $semanaAnterior = (clone $dt)->modify('-7 days')->format('Y-m-d');
+        $semanaSiguiente = (clone $dt)->modify('+7 days')->format('Y-m-d');
+
+        // Obtener los días que trabaja esa semana concreta
+        $fechasTrabajo = $this->usuario->obtenerFechasLaborables($id, $lunes, $domingo);
+        
+        require_once 'app/views/Horario_Empleado.php';
+    }
+
+    public function guardarHorarioEmpleado() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id_usuario = $_POST['id_usuario'] ?? null;
+            $fechas = $_POST['fechas'] ?? []; 
+            $fecha_inicio = $_POST['fecha_inicio'] ?? null;
+            $fecha_fin = $_POST['fecha_fin'] ?? null;
+
+            if ($id_usuario && $fecha_inicio && $fecha_fin) {
+                $this->usuario->actualizarFechasLaborables($id_usuario, $fechas, $fecha_inicio, $fecha_fin);
+            }
+            
+            // Volvemos a la misma semana
+            header("Location: index.php?accion=horario_empleado&id=" . $id_usuario . "&semana=" . $fecha_inicio);
             exit;
         }
     }

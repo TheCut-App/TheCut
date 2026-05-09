@@ -89,7 +89,7 @@ $nextDate = date('Y-m-d', strtotime($fechaActual . ' + 1 day'));
                     }
                     ?>
 
-                    <div class="calendario-grid">
+                    <div class="calendario-grid" style="grid-template-columns: 60px repeat(<?php echo count($barberos); ?>, 1fr);">
                         <div class="celda-cabecera"></div>
                         <?php foreach($barberos as $index => $nombre): ?>
                             <div class="celda-cabecera"><?php echo $nombre; ?></div>

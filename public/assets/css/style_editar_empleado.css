@@ -1,0 +1,195 @@
+:root { 
+    --verde-bg: #0b1f18; 
+    --dorado: #d4af37; 
+    --dorado-oc: #8b733d; 
+    --texto: #e0e0e0; 
+}
+
+body { 
+    background-color: #000; 
+    color: var(--texto); 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    margin: 0; 
+    padding: 20px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    min-height: 100vh; 
+}
+
+.editar-container { 
+    width: 100%; 
+    max-width: 1000px; 
+    background: var(--verde-bg); 
+    border: 2px solid var(--dorado); 
+    border-radius: 8px; 
+    position: relative; 
+    padding: 40px; 
+    box-sizing: border-box; 
+}
+
+.editar-container::before { 
+    content: ''; 
+    position: absolute; 
+    top: 5px; left: 5px; right: 5px; bottom: 5px; 
+    border: 1px solid var(--dorado-oc); 
+    border-radius: 4px; 
+    pointer-events: none; 
+}
+
+.header-edit { 
+    text-align: center; 
+    border-bottom: 1px solid var(--dorado-oc); 
+    padding-bottom: 15px; 
+    margin-bottom: 30px; 
+}
+
+.header-edit h1 { 
+    color: var(--dorado); 
+    font-size: 2rem; 
+    letter-spacing: 3px; 
+    margin: 0; 
+    text-transform: uppercase; 
+}
+
+.layout-grid { 
+    display: grid; 
+    grid-template-columns: 300px 1fr; 
+    gap: 50px; 
+}
+
+.col-perfil { 
+    border-right: 1px solid rgba(139, 115, 61, 0.3); 
+    padding-right: 30px; 
+    text-align: center; 
+}
+
+.col-datos {
+    padding-top: 10px;
+}
+
+.avatar-circulo { 
+    width: 150px; height: 150px; 
+    border-radius: 50%; 
+    border: 3px solid var(--dorado); 
+    margin: 0 auto 20px; 
+    overflow: hidden; 
+    background: #000; 
+}
+
+.avatar-circulo img { 
+    width: 100%; height: 100%; 
+    object-fit: cover; 
+}
+
+.section-label { 
+    color: var(--dorado); 
+    font-size: 0.85rem; 
+    font-weight: bold; 
+    margin-bottom: 12px; 
+    display: block; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+}
+
+.entrada-texto { 
+    width: 100%; 
+    background: rgba(0,0,0,0.3); 
+    border: 1px solid #444; 
+    color: white; 
+    padding: 14px; 
+    border-radius: 4px; 
+    outline: none; 
+    margin-bottom: 20px; 
+    box-sizing: border-box; 
+    transition: 0.3s;
+}
+
+.entrada-texto:focus { 
+    border-color: var(--dorado); 
+}
+
+/* --- LÓGICA DEL CAMPO CONTRASEÑA --- */
+.grupo-entrada-password {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.entrada-texto.input-pass {
+    padding-right: 50px; /* Hueco para el SVG */
+    margin-bottom: 0; 
+}
+
+.ojo-interruptor {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    /* Hemos quitado el display: flex y sus alineaciones */
+    color: #888; 
+    transition: color 0.3s ease;
+    z-index: 10; 
+}
+
+.ojo-interruptor:hover {
+    color: var(--dorado);
+}
+
+.ojo-interruptor svg {
+    /* Posicionamos el dibujo de forma absoluta en el centro exacto */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px !important; /* El !important asegura que nada lo sobrescriba */
+    height: 20px !important;
+}
+/* ---------------------------------- */
+
+.checkbox-group { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    margin-bottom: 20px; 
+    color: var(--dorado); 
+    font-weight: bold; 
+}
+
+.footer-btns { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-top: 40px; 
+    border-top: 1px solid rgba(139, 115, 61, 0.3); 
+    padding-top: 25px; 
+}
+
+.btn-cancelar { 
+    color: #aaa; 
+    text-decoration: none; 
+    font-weight: bold; 
+    text-transform: uppercase; 
+    transition: 0.3s;
+}
+
+.btn-cancelar:hover {
+    color: #fff;
+}
+
+.btn-guardar { 
+    background: var(--dorado); 
+    color: black; 
+    border: none; 
+    padding: 15px 35px; 
+    border-radius: 4px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    text-transform: uppercase; 
+    transition: 0.3s;
+}
+
+.btn-guardar:hover {
+    background: #fff;
+}
