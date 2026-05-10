@@ -72,7 +72,14 @@
 
         <div>
             <span class="etiqueta-campo">Teléfono *</span>
-            <input type="tel" name="telefono" class="entrada-texto" required>
+            <input type="tel" 
+                name="telefono" 
+                class="entrada-texto" 
+                required 
+                pattern="[0-9]{9}" 
+                maxlength="9" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                title="El teléfono debe tener exactamente 9 números">
         </div>
 
         <div class="pie-formulario">

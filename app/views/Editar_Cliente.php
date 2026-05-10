@@ -75,7 +75,15 @@
 
         <div>
             <span class="etiqueta-campo">Teléfono *</span>
-            <input type="tel" name="telefono" class="entrada-texto" value="<?= htmlspecialchars($cliente['telefono']) ?>" required>
+            <input type="tel" 
+                name="telefono" 
+                class="entrada-texto" 
+                value="<?= htmlspecialchars($cliente['telefono']) ?>" 
+                pattern="[0-9]{9}" 
+                maxlength="9" 
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                title="El teléfono debe tener exactamente 9 dígitos numéricos"
+                required>
         </div>
 
         <div>

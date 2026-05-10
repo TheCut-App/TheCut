@@ -317,13 +317,25 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
             exit;
         }
 
+        // Extraemos la fecha de la cita para mostrar SOLO los barberos que trabajan ese día
+        $fechaCita = date('Y-m-d', strtotime($detalle['fecha_cita']));
+
         $datos = [
             'cita'      => $detalle,
-            'barberos'  => $this->usuario->listarBarberos(),
-            'servicios' => $this->cita->listarServicios() // Por si quiere añadir nuevos
+            'barberos'  => $this->usuario->listarBarberosPorFecha($fechaCita), // USAMOS LA FUNCIÓN POR FECHA
+            'servicios' => $this->cita->listarServicios()
         ];
 
         require_once 'app/views/Editar_Cita.php';
+    }
+
+    // Esta función la llamará JavaScript en segundo plano cuando cambies el día
+    public function apiBarberosPorFecha() {
+        header('Content-Type: application/json');
+        $fecha = $_GET['fecha'] ?? date('Y-m-d');
+        $barberos = $this->usuario->listarBarberosPorFecha($fecha);
+        echo json_encode($barberos);
+        exit;
     }
     // Procesa el formulario de edición de cita
     public function actualizarCita() {

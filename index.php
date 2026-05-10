@@ -267,6 +267,20 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once 'app/controllers/UsuarioController.php';
     (new UsuarioController($conexion))->guardarEdicionCliente();
     exit;
+} elseif ($accion === 'editar_cita') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    $usuarioCtrl = new UsuarioController($conexion);
+    $usuarioCtrl->mostrarEditarCita($_GET['id']);
+    exit;
+
+} elseif ($accion === 'api_barberos_fecha') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/models/Usuario.php';
+    require_once 'app/controllers/UsuarioController.php';
+    $usuarioCtrl = new UsuarioController($conexion);
+    $usuarioCtrl->apiBarberosPorFecha();
+    exit;
 } else {
     // Si no se está enviando el formulario ni se pide admin, mostramos el login
     require_once 'app/views/login.php';
