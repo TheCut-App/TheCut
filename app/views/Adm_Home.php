@@ -141,6 +141,7 @@ $nextDate = date('Y-m-d', strtotime($fechaActual . ' + 1 day'));
                     <div class="caja-titulo">GESTIÓN GLOBAL</div>
                     <ul class="caja-lista">
                         <li onclick="window.location.href='index.php?accion=gestion_equipo'" style="cursor: pointer;">Gestión de Equipo</li>
+                        <li onclick="window.location.href='index.php?accion=horarios_globales'" style="cursor: pointer;">Horarios Globales</li>
                         <li onclick="window.location.href='index.php?accion=gestion_clientes'" style="cursor: pointer;">Clientes</li>
                         <li>Inventario</li>
                     </ul>

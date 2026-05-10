@@ -481,7 +481,7 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
         }
     }
 
-    public function mostrarEditarCliente($id) {
+public function mostrarEditarCliente($id) {
         $cliente = $this->cita->obtenerClientePorId($id);
         if (!$cliente) {
             header("Location: index.php?accion=gestion_clientes");
@@ -490,88 +490,27 @@ private function formatearCitasParaGrid($citas, $listaBarberos) {
         require_once 'app/views/Editar_Cliente.php';
     }
 
-    public function guardarEdicionCliente() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id = $_POST['id'] ?? null;
-            $nombre = trim($_POST['nombre'] ?? '');
-            $apellido = trim($_POST['apellido'] ?? '');
-            $telefono = trim($_POST['telefono'] ?? '');
-            $notas = trim($_POST['notas'] ?? '');
+    public function mostrarHorariosGlobales() {
+        // Calcular la semana seleccionada (por defecto la actual)
+        $fecha_ref = $_GET['semana'] ?? date('Y-m-d');
+        $dt = new DateTime($fecha_ref);
 
-            if ($id && $nombre && $telefono) {
-                $this->cita->actualizarCliente($id, $nombre, $apellido, $telefono, $notas);
-            }
-            header("Location: index.php?accion=gestion_clientes");
-            exit;
-        }
+        // Ajustar al Lunes
+        $diaSemana = $dt->format('N');
+        $dt->modify('-' . ($diaSemana - 1) . ' days');
+        $lunes = $dt->format('Y-m-d');
+
+        // Calcular el Domingo
+        $domingo = (clone $dt)->modify('+6 days')->format('Y-m-d');
+
+        // Navegación
+        $semanaAnterior = (clone $dt)->modify('-7 days')->format('Y-m-d');
+        $semanaSiguiente = (clone $dt)->modify('+7 days')->format('Y-m-d');
+
+        // Obtener la matriz de todos los horarios
+        $equipoSemanalo = $this->usuario->obtenerHorariosGlobales($lunes, $domingo);
+
+        require_once 'app/views/Horarios_Global.php';
     }
-    public function mostrarGestionClientes() {
-        // Ya no necesitamos calcular páginas, el AJAX se encarga de todo.
-        require_once 'app/views/Gestion_Clientes.php';
-    }
-
-    public function apiBuscarClientes() {
-        $busqueda = $_GET['s'] ?? '';
-        $paginaActual = (int)($_GET['p'] ?? 1);
-        if ($paginaActual < 1) $paginaActual = 1;
-        $porPagina = 10;
-        $offset = ($paginaActual - 1) * $porPagina;
-
-        // Obtenemos clientes y calculamos totales
-        $clientes = $this->cita->obtenerEstadisticasClientes($busqueda, $porPagina, $offset);
-        $totalClientes = $this->cita->contarTotalClientes($busqueda);
-        $totalPaginas = ceil($totalClientes / $porPagina) ?: 1; // Mínimo 1 página
-        
-        $html = "";
-
-        // Dibujamos las filas
-        foreach ($clientes as $c) {
-            $gastado = number_format($c['total_gastado'], 2) . " €";
-            $iniciales = strtoupper(substr($c['nombre'], 0, 1) . substr($c['apellido_1'], 0, 1));
-            $visita = $c['ultima_visita'] ? date('d M Y', strtotime($c['ultima_visita'])) : 'Nunca';
-            $clase = ($c['total_gastado'] >= 300) ? 'badge-vip' : (($c['total_gastado'] > 0) ? 'badge-regular' : 'badge-nuevo');
-            $texto = ($c['total_gastado'] >= 300) ? 'VIP' : (($c['total_gastado'] > 0) ? 'REGULAR' : 'NUEVO');
-
-            $html .= "
-            <div class='fila-cliente'>
-                <div class='celda-perfil'>
-                    <div class='avatar-circulo'>$iniciales</div>
-                    <span class='nombre-cliente'>{$c['nombre']} {$c['apellido_1']}</span>
-                </div>
-                <div style='color: #bbb;'>{$c['telefono']}</div>
-                <div style='color: #bbb;'>$visita</div>
-                <div style='font-weight: bold; color: var(--dorado);'>$gastado</div>
-                <div style='text-align: center;'><span class='$clase'>$texto</span></div>
-                <div class='celda-acciones'>
-                    <button class='btn-accion'>Historial</button>
-                    <button class='btn-accion' onclick=\"window.location.href='index.php?accion=editar_cliente&id={$c['id']}'\">Editar</button>
-                </div>
-            </div>";
-        }
-
-        if (empty($clientes)) {
-            $html .= "<div style='text-align:center; padding:20px; color:#888;'>No se encontraron clientes.</div>";
-        }
-
-        // Dibujamos la barra de Paginación y Contador
-        $html .= "<div style='display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px;'>";
-        
-        if ($paginaActual > 1) {
-            $prev = $paginaActual - 1;
-            // Fíjate que el botón llama a la función JS buscar()
-            $html .= "<button onclick='buscar($prev)' class='btn-accion' style='padding: 8px 15px;'>Anterior</button>";
-        }
-
-        $html .= "<span style='color: #888; font-size: 0.9rem;'>Página $paginaActual de $totalPaginas ($totalClientes clientes)</span>";
-
-        if ($paginaActual < $totalPaginas) {
-            $next = $paginaActual + 1;
-            $html .= "<button onclick='buscar($next)' class='btn-accion' style='padding: 8px 15px;'>Siguiente</button>";
-        }
-
-        $html .= "</div>";
-
-        echo $html;
-        exit;
     }
 }

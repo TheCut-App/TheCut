@@ -1,0 +1,95 @@
+:root {
+    --azul-profundo: #050B0D;
+    --dorado: #d4af37;
+    --gris-carbon: #1A1D20;
+    --verde-ok: #0f664a;
+    --gris-libre: #333;
+}
+
+body {
+    background-color: var(--azul-profundo);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 40px;
+    color: white;
+}
+
+.contenedor-global {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--gris-carbon);
+    border: 1px solid var(--dorado);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+}
+
+.cabecera-global {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    padding-bottom: 20px;
+}
+
+.titulo { color: var(--dorado); margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+
+.btn-volver {
+    color: #aaa; text-decoration: none; font-weight: bold; font-size: 0.9rem; text-transform: uppercase;
+}
+.btn-volver:hover { color: white; }
+
+.nav-semana {
+    display: flex; align-items: center; gap: 20px; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 4px; border: 1px solid #444;
+}
+
+.btn-nav {
+    color: var(--dorado); text-decoration: none; font-weight: bold; font-size: 1.2rem;
+}
+
+.tabla-horarios {
+    width: 100%; border-collapse: collapse; text-align: center;
+}
+
+.tabla-horarios th {
+    color: var(--dorado); padding: 15px; border-bottom: 2px solid var(--dorado); text-transform: uppercase; font-size: 0.9rem;
+}
+
+.tabla-horarios td {
+    padding: 15px; border-bottom: 1px solid #333; vertical-align: middle;
+}
+
+.perfil-empleado {
+    display: flex; align-items: center; gap: 15px; text-align: left;
+}
+
+.foto-mini {
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--dorado); object-fit: cover;
+}
+
+.punto-dia {
+    display: inline-block;
+    width: 16px; /* Tamaño intermedio equilibrado */
+    height: 16px;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+.dia-trabaja { 
+    background-color: #00e676; 
+    box-shadow: 0 0 10px rgba(0, 230, 118, 0.5); /* Resplandor más fino */
+    border: 2px solid rgba(255, 255, 255, 0.2); /* Un pequeño borde para definirlo mejor */
+    box-sizing: border-box;
+}
+
+.dia-libre { 
+    background-color: transparent; 
+    border: 2px solid rgba(255, 255, 255, 0.1); /* Borde muy sutil para el hueco */
+    box-sizing: border-box;
+}
+
+.btn-editar-mini {
+    background: transparent; color: var(--dorado); border: 1px solid var(--dorado); padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; transition: 0.3s;
+}
+.btn-editar-mini:hover { background: var(--dorado); color: black; }

@@ -210,4 +210,34 @@ class Usuario{
         }
     }
 
+    public function obtenerHorariosGlobales($fecha_inicio, $fecha_fin) {
+        $sql = "SELECT u.id as id_usuario, u.nombre, u.url_foto, h.fecha 
+                FROM usuarios u 
+                LEFT JOIN horarios h ON u.id = h.id_usuario AND h.fecha BETWEEN :inicio AND :fin 
+                WHERE u.is_active = true 
+                ORDER BY u.id, h.fecha";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['inicio' => $fecha_inicio, 'fin' => $fecha_fin]);
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Agrupamos los resultados por empleado para que sea fácil pintarlos en la tabla
+        $horarios = [];
+        foreach ($resultados as $fila) {
+            $id = $fila['id_usuario'];
+            if (!isset($horarios[$id])) {
+                $horarios[$id] = [
+                    'id' => $id,
+                    'nombre' => $fila['nombre'],
+                    'url_foto' => $fila['url_foto'],
+                    'fechas' => []
+                ];
+            }
+            if ($fila['fecha']) {
+                $horarios[$id]['fechas'][] = date('Y-m-d', strtotime($fila['fecha']));
+            }
+        }
+        return $horarios;
+    }
+
 }
