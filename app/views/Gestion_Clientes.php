@@ -38,6 +38,14 @@
         }
         #contenedorLista::-webkit-scrollbar { width: 6px; }
         #contenedorLista::-webkit-scrollbar-thumb { background: var(--dorado); border-radius: 10px; }
+        .modal-oculto { display: none; }
+        .modal-activo { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+        .modal-contenido { background: var(--verde-bg); border: 2px solid var(--dorado); border-radius: 8px; width: 90%; max-width: 600px; padding: 30px; position: relative; max-height: 80vh; display: flex; flex-direction: column; }
+        .cerrar-modal { position: absolute; top: 15px; right: 20px; color: var(--dorado); font-size: 1.8rem; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .cerrar-modal:hover { color: #fff; }
+        #listaHistorial { overflow-y: auto; padding-right: 10px; margin-top: 15px; }
+        #listaHistorial::-webkit-scrollbar { width: 6px; }
+        #listaHistorial::-webkit-scrollbar-thumb { background: var(--dorado); border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -63,6 +71,17 @@
         </div>
 </div>
 
+<div id="modalHistorial" class="modal-oculto">
+    <div class="modal-contenido">
+        <span class="cerrar-modal" onclick="cerrarHistorial()">&times;</span>
+        <h2 style="color: var(--dorado); text-align: center; margin-top: 0; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px;">HISTORIAL DE CITAS</h2>
+        <p id="nombreClienteHistorial" style="text-align: center; color: #aaa; margin-bottom: 20px; font-size: 1.1rem; text-transform: uppercase; font-weight: bold;"></p>
+        
+        <div id="listaHistorial">
+            </div>
+    </div>
+</div>
+
 <script>
     const buscador = document.getElementById('inputBuscador');
     const lista = document.getElementById('contenedorLista');
@@ -79,6 +98,22 @@
 
     // Carga inicial al entrar en la sección
     buscar(1);
+
+    async function abrirHistorial(id, nombre) {
+        document.getElementById('nombreClienteHistorial').innerText = nombre;
+        document.getElementById('listaHistorial').innerHTML = '<div style="text-align:center; color:#888; padding: 30px;">Cargando historial...</div>';
+        
+        document.getElementById('modalHistorial').classList.remove('modal-oculto');
+        document.getElementById('modalHistorial').classList.add('modal-activo');
+
+        const res = await fetch(`index.php?accion=api_historial_cliente&id=${id}`);
+        document.getElementById('listaHistorial').innerHTML = await res.text();
+    }
+
+    function cerrarHistorial() {
+        document.getElementById('modalHistorial').classList.remove('modal-activo');
+        document.getElementById('modalHistorial').classList.add('modal-oculto');
+    }
 </script>
 
 </body>

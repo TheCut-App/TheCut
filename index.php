@@ -257,7 +257,11 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once 'app/controllers/UsuarioController.php';
     (new UsuarioController($conexion))->mostrarHorariosGlobales();
     exit;
-
+} elseif ($accion === 'api_historial_cliente') {
+    require_once 'app/models/Cita.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->apiHistorialCliente();
+    exit;
 } else {
     // Si no se está enviando el formulario ni se pide admin, mostramos el login
     require_once 'app/views/login.php';

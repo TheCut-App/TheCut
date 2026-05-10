@@ -512,5 +512,125 @@ public function mostrarEditarCliente($id) {
 
         require_once 'app/views/Horarios_Global.php';
     }
+    public function mostrarGestionClientes() {
+        require_once 'app/views/Gestion_Clientes.php';
+    }
+
+    public function apiBuscarClientes() {
+        $busqueda = $_GET['s'] ?? '';
+        $paginaActual = (int)($_GET['p'] ?? 1);
+        if ($paginaActual < 1) $paginaActual = 1;
+        $porPagina = 10;
+        $offset = ($paginaActual - 1) * $porPagina;
+
+        // Obtenemos clientes y calculamos totales
+        $clientes = $this->cita->obtenerEstadisticasClientes($busqueda, $porPagina, $offset);
+        $totalClientes = $this->cita->contarTotalClientes($busqueda);
+        $totalPaginas = ceil($totalClientes / $porPagina) ?: 1; 
+        
+        $html = "";
+
+        // Dibujamos las filas
+        foreach ($clientes as $c) {
+            $gastado = number_format($c['total_gastado'], 2) . " €";
+            $iniciales = strtoupper(substr($c['nombre'], 0, 1) . substr($c['apellido_1'], 0, 1));
+            $visita = $c['ultima_visita'] ? date('d M Y', strtotime($c['ultima_visita'])) : 'Nunca';
+            $clase = ($c['total_gastado'] >= 300) ? 'badge-vip' : (($c['total_gastado'] > 0) ? 'badge-regular' : 'badge-nuevo');
+            $texto = ($c['total_gastado'] >= 300) ? 'VIP' : (($c['total_gastado'] > 0) ? 'REGULAR' : 'NUEVO');
+
+            $html .= "
+            <div class='fila-cliente'>
+                <div class='celda-perfil'>
+                    <div class='avatar-circulo'>$iniciales</div>
+                    <span class='nombre-cliente'>{$c['nombre']} {$c['apellido_1']}</span>
+                </div>
+                <div style='color: #bbb;'>{$c['telefono']}</div>
+                <div style='color: #bbb;'>$visita</div>
+                <div style='font-weight: bold; color: var(--dorado);'>$gastado</div>
+                <div style='text-align: center;'><span class='$clase'>$texto</span></div>
+                <div class='celda-acciones'>
+                    <button class='btn-accion' onclick=\"abrirHistorial({$c['id']}, '{$c['nombre']} {$c['apellido_1']}')\">Historial</button>
+                    <button class='btn-accion' onclick=\"window.location.href='index.php?accion=editar_cliente&id={$c['id']}'\">Editar</button>
+                </div>
+            </div>";
+        }
+
+        if (empty($clientes)) {
+            $html .= "<div style='text-align:center; padding:20px; color:#888;'>No se encontraron clientes.</div>";
+        }
+
+        // Dibujamos la barra de Paginación y Contador
+        $html .= "<div style='display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px;'>";
+        
+        if ($paginaActual > 1) {
+            $prev = $paginaActual - 1;
+            $html .= "<button onclick='buscar($prev)' class='btn-accion' style='padding: 8px 15px;'>Anterior</button>";
+        }
+
+        $html .= "<span style='color: #888; font-size: 0.9rem;'>Página $paginaActual de $totalPaginas ($totalClientes clientes)</span>";
+
+        if ($paginaActual < $totalPaginas) {
+            $next = $paginaActual + 1;
+            $html .= "<button onclick='buscar($next)' class='btn-accion' style='padding: 8px 15px;'>Siguiente</button>";
+        }
+
+        $html .= "</div>";
+
+        echo $html;
+        exit;
+    }
+
+    public function guardarEdicionCliente() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id'] ?? null;
+            $nombre = trim($_POST['nombre'] ?? '');
+            $apellido = trim($_POST['apellido'] ?? '');
+            $telefono = trim($_POST['telefono'] ?? '');
+            $notas = trim($_POST['notas'] ?? '');
+
+            // Validación de seguridad: solo 9 números
+            if (!preg_match('/^[0-9]{9}$/', $telefono)) {
+                header("Location: index.php?accion=editar_cliente&id=$id&error=telefono");
+                exit;
+            }
+
+            if ($id && $nombre && $telefono) {
+                $this->cita->actualizarCliente($id, $nombre, $apellido, $telefono, $notas);
+            }
+            header("Location: index.php?accion=gestion_clientes");
+            exit;
+        }
+    }
+
+    public function apiHistorialCliente() {
+        $id = $_GET['id'] ?? null;
+        if (!$id) exit;
+        
+        $historial = $this->cita->obtenerHistorialCliente($id);
+        
+        if (empty($historial)) {
+            echo "<div style='text-align:center; color:#888; padding:40px 20px;'>Este cliente aún no tiene citas completadas.</div>";
+            exit;
+        }
+
+        foreach ($historial as $h) {
+            $fecha = date('d M Y', strtotime($h['fecha_cita']));
+            $hora = date('H:i', strtotime($h['fecha_cita']));
+            $total = number_format($h['total'], 2) . "€";
+            $barbero = strtoupper($h['barbero']);
+
+            echo "
+            <div style='background: rgba(255,255,255,0.03); border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;'>
+                <div>
+                    <div style='color: var(--dorado); font-weight: bold; margin-bottom: 5px; font-size: 1.1rem;'>$fecha <span style='color: #888; font-weight: normal; font-size: 0.9rem;'>a las $hora</span></div>
+                    <div style='color: #fff; font-size: 0.9rem; margin-bottom: 4px; text-transform: uppercase;'>{$h['servicios']}</div>
+                    <div style='color: #aaa; font-size: 0.8rem;'>Atendido por: $barbero</div>
+                </div>
+                <div style='font-size: 1.3rem; font-weight: bold; color: var(--dorado);'>
+                    $total
+                </div>
+            </div>";
+        }
+        exit;
     }
 }

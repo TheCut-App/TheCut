@@ -298,4 +298,23 @@ class Cita {
             'notas' => $notas
         ]);
     }
+
+    public function obtenerHistorialCliente($id_cliente) {
+        $sql = "SELECT 
+                    c.fecha_cita, 
+                    b.nombre AS barbero,
+                    COALESCE(STRING_AGG(s.nombre, ' + '), 'Sin servicio') AS servicios,
+                    COALESCE(SUM(s.precio), 0) AS total
+                FROM citas c
+                JOIN usuarios b ON c.id_usuario = b.id
+                LEFT JOIN citas_servicios cs ON c.id = cs.id_cita
+                LEFT JOIN servicios s ON cs.id_servicio = s.id
+                WHERE c.id_cliente = :id AND c.estado IN ('Pagado', 'Completada')
+                GROUP BY c.id, c.fecha_cita, b.nombre
+                ORDER BY c.fecha_cita DESC";
+                
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id_cliente]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
