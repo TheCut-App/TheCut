@@ -3,51 +3,44 @@
 class AuthController {
 
     private $usuarioModel;
-    private $db;
+    private $databaseConnection;
 
-    public function __construct($conexion_db) {
-        //Si no esta con sesion iniciada que la incie 
+    public function __construct($databaseConnection) {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
-        // Instanciamos el modelo con la conexión que nos llega
-        $this->usuarioModel = new Usuario($conexion_db);
-        $this->db = $conexion_db;
+        $this->usuarioModel = new Usuario($databaseConnection);
+        $this->databaseConnection = $databaseConnection;
     }
 
     public function procesarLogin() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
-            $boton_pulsado = $_POST['btn_login'] ?? 'normal';
+            $botonPulsado = $_POST['btn_login'] ?? 'normal';
 
-            if ($boton_pulsado === 'invitado') {
-                // Si pulsó INVITADO, ignoramos los inputs y forzamos estas credenciales
-                $username = 'invitado';
-                $password = '1234';
+            if ($botonPulsado === 'invitado') {
+                $nombreUsuario = 'invitado';
+                $contrasena = '1234';
             } else {
-                // Si pulsó ACEPTAR, recogemos lo que haya escrito en el formulario
-                $username = trim($_POST['usuario'] ?? '');
-                $password = trim($_POST['contrasena'] ?? '');
+                $nombreUsuario = trim($_POST['usuario'] ?? '');
+                $contrasena = trim($_POST['contrasena'] ?? '');
             }
 
-            if (!empty($username) && !empty($password)) {
-                
-                $usuario = $this->usuarioModel->buscarPorUsername($username);
+            if (!empty($nombreUsuario) && !empty($contrasena)) {
+                $datosUsuario = $this->usuarioModel->buscarPorUsername($nombreUsuario);
 
-                if ($usuario) {
-                    if ($usuario['is_active']) {
-                        
-                        if ($password === $usuario['password']) {
+                if ($datosUsuario) {
+                    if ($datosUsuario['is_active']) {
+                        if ($contrasena === $datosUsuario['password']) {
                             
-                            $_SESSION['user_id'] = $usuario['id'];
-                            $_SESSION['username'] = $usuario['username'];
-                            $_SESSION['is_admin'] = $usuario['is_admin'];
+                            $_SESSION['user_id'] = $datosUsuario['id'];
+                            $_SESSION['username'] = $datosUsuario['username'];
+                            $_SESSION['is_admin'] = $datosUsuario['is_admin'];
 
-                            if ($usuario['is_admin']) {
-                                // Redirigimos al semáforo pidiendo la acción admin
+                            if ($datosUsuario['is_admin']) {
                                 header("Location: index.php?accion=admin"); 
-                            } else if ($usuario['username'] === 'invitado') {
+                            } else if ($datosUsuario['username'] === 'invitado') {
                                 header("Location: index.php?accion=invitado"); 
                             } else {
                                 header("Location: index.php?accion=empleado"); 
@@ -55,7 +48,7 @@ class AuthController {
                             exit;
                             
                         } else {
-                            $this->redirigirConError("Contraseña incorrecta.", $username);
+                            $this->redirigirConError("Contraseña incorrecta.", $nombreUsuario);
                         }
                     } else {
                         $this->redirigirConError("Cuenta de usuario desactivada.");
@@ -69,12 +62,11 @@ class AuthController {
         }
     }
 
-    private function redirigirConError($mensaje, $usuario_intentado = '') {
-        $_SESSION['error_login'] = $mensaje;
+    private function redirigirConError($mensajeError, $usuarioIntentado = '') {
+        $_SESSION['error_login'] = $mensajeError;
 
-        // Si se ha pasado un usuario, lo guardamos en la sesión
-        if (!empty($usuario_intentado)) {
-            $_SESSION['login_username'] = $usuario_intentado;
+        if (!empty($usuarioIntentado)) {
+            $_SESSION['login_username'] = $usuarioIntentado;
         }
 
         header("Location: index.php");

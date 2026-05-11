@@ -26,23 +26,23 @@
         <div class="lista-dias">
             <?php 
             $nombresDias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-            $fecha_iterador = new DateTime($lunes);
+            $iteradorFecha = new DateTime($lunes);
             
-            for ($i = 0; $i < 7; $i++): 
-                $fechaActualStr = $fecha_iterador->format('Y-m-d');
-                $trabaja = in_array($fechaActualStr, $fechasTrabajo);
+            for ($indiceDia = 0; $indiceDia < 7; $indiceDia++): 
+                $fechaActualTexto = $iteradorFecha->format('Y-m-d');
+                $estaTrabajando = in_array($fechaActualTexto, $fechasTrabajo);
             ?>
                 <div class="fila-dia">
                     <span class="nombre-dia">
-                        <?= $nombresDias[$i] ?> <span style="color:#888; font-size:0.8rem; margin-left:10px;"><?= $fecha_iterador->format('d/m') ?></span>
+                        <?= $nombresDias[$indiceDia] ?> <span class="fecha-dia-texto"><?= $iteradorFecha->format('d/m') ?></span>
                     </span>
                     <label class="switch">
-                        <input type="checkbox" name="fechas[]" value="<?= $fechaActualStr ?>" <?= $trabaja ? 'checked' : '' ?>>
+                        <input type="checkbox" name="fechas[]" value="<?= $fechaActualTexto ?>" <?= $estaTrabajando ? 'checked' : '' ?>>
                         <span class="slider"></span>
                     </label>
                 </div>
             <?php 
-                $fecha_iterador->modify('+1 day');
+                $iteradorFecha->modify('+1 day');
             endfor; 
             ?>
         </div>
@@ -54,15 +54,13 @@
     </form>
 </div>
 <script>
-    // Detectamos si en la URL existe el parámetro msg=ok
-    const urlParams = new URLSearchParams(window.location.search);
+    const parametrosUrl = new URLSearchParams(window.location.search);
     
-    if (urlParams.get('msg') === 'ok') {
+    if (parametrosUrl.get('msg') === 'ok') {
         alert('Horario actualizado correctamente.');
         
-        // Limpiamos la URL para que el mensaje no vuelva a salir si el usuario refresca la página
-        const nuevaUrl = window.location.href.replace('&msg=ok', '');
-        window.history.replaceState({}, document.title, nuevaUrl);
+        const urlLimpia = window.location.href.replace('&msg=ok', '');
+        window.history.replaceState({}, document.title, urlLimpia);
     }
 </script>
 </body>

@@ -1,243 +1,262 @@
 <?php
 
-class Usuario{
-    private $db;
+class Usuario {
+
+    private $databaseConnection;
 
     public function __construct() {
-        $this->db = Database::getConnection();
+        $this->databaseConnection = Database::getConnection();
     }
 
-    //Obligatorio parametros username, password, nombre, apellido_1
-    public function crearUsuario($username, $password, $nombre, $apellido_1, $apellido_2 = null, $is_admin = false, $url_foto = null) {
-        $sql = "INSERT INTO usuarios (
-                    username, password, nombre, apellido_1, apellido_2, 
-                    is_admin, is_active, url_foto, fecha_alta, rol
-                ) VALUES (
-                    :username, :password, :nombre, :apellido_1, :apellido_2, 
-                    :is_admin, true, :url_foto, CURRENT_DATE, 'barbero'
-                )";
+    public function crearUsuario(string $nombreUsuario, string $contrasena, string $nombre, string $apellido1, ?string $apellido2 = null, bool $esAdmin = false, ?string $urlFoto = null): bool {
+        $sqlInsertar = "INSERT INTO usuarios (
+                            username, password, nombre, apellido_1, apellido_2, 
+                            is_admin, is_active, url_foto, fecha_alta, rol
+                        ) VALUES (
+                            :username, :password, :nombre, :apellido_1, :apellido_2, 
+                            :is_admin, true, :url_foto, CURRENT_DATE, 'barbero'
+                        )";
         
-        $stmt = $this->db->prepare($sql);
+        $statement = $this->databaseConnection->prepare($sqlInsertar);
         
-        return $stmt->execute([
-            'username'   => $username,
-            'password'   => $password,
+        return $statement->execute([
+            'username'   => $nombreUsuario,
+            'password'   => $contrasena,
             'nombre'     => $nombre,
-            'apellido_1' => $apellido_1,
-            'apellido_2' => $apellido_2,
-            'is_admin'   => $is_admin ? 1 : 0, 
-            'url_foto'   => $url_foto
+            'apellido_1' => $apellido1,
+            'apellido_2' => $apellido2,
+            'is_admin'   => $esAdmin ? 1 : 0, 
+            'url_foto'   => $urlFoto
         ]);
     }
 
-    //Obligatorio parametros id, username, password, nombre, apellido_1
-    public function actualizarUsuario($id, $nombre, $apellido_1, $apellido_2 = null, $is_admin = false, $url_foto = null) {
-    
-    $sql = "UPDATE usuarios SET 
-                nombre = :nombre, 
-                apellido_1 = :apellido_1, 
-                apellido_2 = :apellido_2, 
-                is_admin = :is_admin, 
-                url_foto = :url_foto
-            WHERE id = :id";
-    
-    $stmt = $this->db->prepare($sql);
-    
-    return $stmt->execute([
-        'id'         => $id,
-        'nombre'     => $nombre,
-        'apellido_1' => $apellido_1,
-        'apellido_2' => $apellido_2,
-        'is_admin'   => $is_admin ? 1 : 0,
-        'url_foto'   => $url_foto
-    ]);
-}
-
-    public function buscarPorUsername($username){
-        $sql = "SELECT * FROM usuarios WHERE username = :username LIMIT 1";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['username' => $username]);
-        $usuario = $stmt->fetch();
-
-        return $usuario;
-    }
-
-    public function esAdmin($id){
-        $sql = "SELECT is_admin FROM usuarios WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id' => $id]);
-        $esAdmin = $stmt->fetch();
-
-        //Mira que exista y que sea igual a true
-        return $esAdmin && $esAdmin['is_admin'] == true;
-
-    }
-
-    public function esActivo($id){
-        $sql = "SELECT is_active FROM usuarios WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id' => $id]);
-        $esActivo = $stmt->fetch();
-
-        //Mira que exista y que sea igual a true
-        return $esActivo && $esActivo['is_active'] == true;
-
-    }
-
-    //Si esta activo pasa a inactivo y viceversa
-    public function toggleActivo($id) {
-        $sql = "UPDATE usuarios SET is_active = NOT is_active WHERE id = :id";
+    public function actualizarUsuario(int $idUsuario, string $nombre, string $apellido1, ?string $apellido2 = null, bool $esAdmin = false, ?string $urlFoto = null): bool {
+        $sqlActualizar = "UPDATE usuarios SET 
+                            nombre = :nombre, 
+                            apellido_1 = :apellido_1, 
+                            apellido_2 = :apellido_2, 
+                            is_admin = :is_admin, 
+                            url_foto = :url_foto
+                        WHERE id = :id";
         
-        $stmt = $this->db->prepare($sql);
+        $statement = $this->databaseConnection->prepare($sqlActualizar);
         
-        return $stmt->execute(['id' => $id]);
+        return $statement->execute([
+            'id'         => $idUsuario,
+            'nombre'     => $nombre,
+            'apellido_1' => $apellido1,
+            'apellido_2' => $apellido2,
+            'is_admin'   => $esAdmin ? 1 : 0,
+            'url_foto'   => $urlFoto
+        ]);
     }
 
-    //Muestra el id, username y nombre de todos los barberos activos
-    public function listarBarberos() {
-        $sql = "SELECT id, username, nombre 
-                FROM usuarios 
-                WHERE rol = 'barbero' AND is_active = true 
-                ORDER BY nombre ASC";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function buscarPorUsername(string $nombreUsuario) {
+        $sqlConsulta = "SELECT * FROM usuarios WHERE username = :username LIMIT 1";
+
+        $statement = $this->databaseConnection->prepare($sqlConsulta);
+        $statement->execute(['username' => $nombreUsuario]);
+        
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
-    public function listarBarberosPorFecha($fecha) {
-        $sql = "SELECT u.id, u.username, u.nombre 
-                FROM usuarios u
-                INNER JOIN horarios h ON u.id = h.id_usuario
-                WHERE u.rol = 'barbero' 
-                  AND u.is_active = true 
-                  AND h.fecha = :fecha
-                ORDER BY u.nombre ASC";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['fecha' => $fecha]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    public function esAdmin(int $idUsuario): bool {
+        $sqlConsulta = "SELECT is_admin FROM usuarios WHERE id = :id";
+        
+        $statement = $this->databaseConnection->prepare($sqlConsulta);
+        $statement->execute(['id' => $idUsuario]);
+        $resultadoConsulta = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return $resultadoConsulta && $resultadoConsulta['is_admin'] == true;
     }
-    public function obtenerEstadisticasEquipo() {
+
+    public function esActivo(int $idUsuario): bool {
+        $sqlConsulta = "SELECT is_active FROM usuarios WHERE id = :id";
+        
+        $statement = $this->databaseConnection->prepare($sqlConsulta);
+        $statement->execute(['id' => $idUsuario]);
+        $resultadoConsulta = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return $resultadoConsulta && $resultadoConsulta['is_active'] == true;
+    }
+
+    public function toggleActivo(int $idUsuario): bool {
+        $sqlActualizar = "UPDATE usuarios SET is_active = NOT is_active WHERE id = :id";
+        
+        $statement = $this->databaseConnection->prepare($sqlActualizar);
+        
+        return $statement->execute(['id' => $idUsuario]);
+    }
+
+    public function listarBarberos(): array {
+        $sqlConsulta = "SELECT id, username, nombre 
+                        FROM usuarios 
+                        WHERE rol = 'barbero' AND is_active = true 
+                        ORDER BY nombre ASC";
+                        
+        $statement = $this->databaseConnection->prepare($sqlConsulta);
+        $statement->execute();
+        
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function listarBarberosPorFecha(string $fechaConsulta): array {
+        $sqlConsulta = "SELECT u.id, u.username, u.nombre 
+                        FROM usuarios u
+                        INNER JOIN horarios h ON u.id = h.id_usuario
+                        WHERE u.rol = 'barbero' 
+                          AND u.is_active = true 
+                          AND h.fecha = :fecha
+                        ORDER BY u.nombre ASC";
+                        
+        $statement = $this->databaseConnection->prepare($sqlConsulta);
+        $statement->execute(['fecha' => $fechaConsulta]);
+        
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function obtenerEstadisticasEquipo(): array {
         $inicioMes = date('Y-m-01 00:00:00');
         $finMes = date('Y-m-t 23:59:59');
 
-        $sql = "SELECT 
-                    u.id, 
-                    u.nombre, 
-                    u.url_foto,
-                    COALESCE(SUM(s.precio), 0) as total_servicios
-                FROM usuarios u
-                LEFT JOIN citas c ON u.id = c.id_usuario 
-                    AND c.fecha_cita BETWEEN :inicio AND :fin 
-                    AND c.estado IN ('Pagado', 'Completada')
-                LEFT JOIN citas_servicios cs ON c.id = cs.id_cita
-                LEFT JOIN servicios s ON cs.id_servicio = s.id
-                WHERE u.rol = 'barbero' AND u.is_active = true
-                GROUP BY u.id, u.nombre, u.url_foto
-                ORDER BY u.nombre ASC";
+        $sqlConsulta = "SELECT 
+                            u.id, 
+                            u.nombre, 
+                            u.url_foto,
+                            COALESCE(SUM(s.precio), 0) as total_servicios
+                        FROM usuarios u
+                        LEFT JOIN citas c ON u.id = c.id_usuario 
+                            AND c.fecha_cita BETWEEN :inicio AND :fin 
+                            AND c.estado IN ('Pagado', 'Completada')
+                        LEFT JOIN citas_servicios cs ON c.id = cs.id_cita
+                        LEFT JOIN servicios s ON cs.id_servicio = s.id
+                        WHERE u.rol = 'barbero' AND u.is_active = true
+                        GROUP BY u.id, u.nombre, u.url_foto
+                        ORDER BY u.nombre ASC";
 
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['inicio' => $inicioMes, 'fin' => $finMes]);
-        $empleados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $statement = $this->databaseConnection->prepare($sqlConsulta);
+        $statement->execute(['inicio' => $inicioMes, 'fin' => $finMes]);
+        $listaEmpleados = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-        foreach ($empleados as &$emp) {
-            $emp['total_productos'] = 0; // Pendiente de crear la tabla de ventas de productos
-            $emp['total_mes'] = $emp['total_servicios'] + $emp['total_productos'];
+        foreach ($listaEmpleados as &$empleadoActual) {
+            $empleadoActual['total_productos'] = 0; 
+            $empleadoActual['total_mes'] = $empleadoActual['total_servicios'] + $empleadoActual['total_productos'];
         }
 
-        return $empleados;
+        return $listaEmpleados;
     }
 
-    public function obtenerUsuarioPorId($id) {
-        $sql = "SELECT * FROM usuarios WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    public function actualizarUsuarioCompleto($id, $nombre, $apellido_1, $apellido_2, $username, $password, $is_admin, $is_active) {
-        $sql = "UPDATE usuarios SET 
-                    nombre = :nombre, 
-                    apellido_1 = :apellido_1, 
-                    apellido_2 = :apellido_2, 
-                    username = :username, 
-                    password = :password, 
-                    is_admin = :is_admin, 
-                    is_active = :is_active 
-                WHERE id = :id";
+    public function obtenerUsuarioPorId(int $idUsuario) {
+        $sqlConsulta = "SELECT * FROM usuarios WHERE id = :id";
         
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([
-            'id' => $id,
-            'nombre' => $nombre,
-            'apellido_1' => $apellido_1,
-            'apellido_2' => $apellido_2,
-            'username' => $username,
-            'password' => $password,
-            'is_admin' => $is_admin ? 1 : 0,
-            'is_active' => $is_active ? 1 : 0
+        $statement = $this->databaseConnection->prepare($sqlConsulta);
+        $statement->execute(['id' => $idUsuario]);
+        
+        return $statement->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function actualizarUsuarioCompleto(int $idUsuario, string $nombre, string $apellido1, ?string $apellido2, string $nombreUsuario, string $contrasena, bool $esAdmin, bool $estaActivo): bool {
+        $sqlActualizar = "UPDATE usuarios SET 
+                            nombre = :nombre, 
+                            apellido_1 = :apellido_1, 
+                            apellido_2 = :apellido_2, 
+                            username = :username, 
+                            password = :password, 
+                            is_admin = :is_admin, 
+                            is_active = :is_active 
+                        WHERE id = :id";
+        
+        $statement = $this->databaseConnection->prepare($sqlActualizar);
+        
+        return $statement->execute([
+            'id'         => $idUsuario,
+            'nombre'     => $nombre,
+            'apellido_1' => $apellido1,
+            'apellido_2' => $apellido2,
+            'username'   => $nombreUsuario,
+            'password'   => $contrasena,
+            'is_admin'   => $esAdmin ? 1 : 0,
+            'is_active'  => $estaActivo ? 1 : 0
         ]);
     }
 
-    public function obtenerFechasLaborables($id_usuario, $fecha_inicio, $fecha_fin) {
-        $sql = "SELECT fecha FROM horarios WHERE id_usuario = :id AND fecha BETWEEN :inicio AND :fin";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['id' => $id_usuario, 'inicio' => $fecha_inicio, 'fin' => $fecha_fin]);
-        $resultados = $stmt->fetchAll(PDO::FETCH_COLUMN); 
+    public function obtenerFechasLaborables(int $idUsuario, string $fechaInicio, string $fechaFin): array {
+        $sqlConsulta = "SELECT fecha FROM horarios WHERE id_usuario = :id AND fecha BETWEEN :inicio AND :fin";
         
-        // Convertimos la fecha a formato estricto Y-m-d para que coincida perfectamente con los botones
-        return array_map(function($f) {
-            return date('Y-m-d', strtotime($f));
-        }, $resultados);
+        $statement = $this->databaseConnection->prepare($sqlConsulta);
+        $statement->execute([
+            'id'     => $idUsuario, 
+            'inicio' => $fechaInicio, 
+            'fin'    => $fechaFin
+        ]);
+        
+        $listaFechas = $statement->fetchAll(PDO::FETCH_COLUMN); 
+        
+        return array_map(function($fechaActual) {
+            return date('Y-m-d', strtotime($fechaActual));
+        }, $listaFechas);
     }
 
-    public function actualizarFechasLaborables($id_usuario, $fechas_activas, $fecha_inicio, $fecha_fin) {
+    public function actualizarFechasLaborables(int $idUsuario, array $fechasActivas, string $fechaInicio, string $fechaFin): bool {
         try {
-            $stmtDel = $this->db->prepare("DELETE FROM horarios WHERE id_usuario = :id AND fecha BETWEEN :inicio AND :fin");
-            $stmtDel->execute(['id' => $id_usuario, 'inicio' => $fecha_inicio, 'fin' => $fecha_fin]);
+            $statementEliminar = $this->databaseConnection->prepare("DELETE FROM horarios WHERE id_usuario = :id AND fecha BETWEEN :inicio AND :fin");
+            $statementEliminar->execute([
+                'id'     => $idUsuario, 
+                'inicio' => $fechaInicio, 
+                'fin'    => $fechaFin
+            ]);
 
-            if (!empty($fechas_activas)) {
-                $sqlInsert = "INSERT INTO horarios (id_usuario, fecha) VALUES (:id, :fecha)";
-                $stmtInsert = $this->db->prepare($sqlInsert);
+            if (!empty($fechasActivas)) {
+                $sqlInsertar = "INSERT INTO horarios (id_usuario, fecha) VALUES (:id, :fecha)";
+                $statementInsertar = $this->databaseConnection->prepare($sqlInsertar);
                 
-                foreach ($fechas_activas as $fecha) {
-                    $stmtInsert->execute(['id' => $id_usuario, 'fecha' => $fecha]);
+                foreach ($fechasActivas as $fechaActual) {
+                    $statementInsertar->execute([
+                        'id'    => $idUsuario, 
+                        'fecha' => $fechaActual
+                    ]);
                 }
             }
             return true;
-        } catch (PDOException $e) {
-            // Si hay un error, paralizamos la pantalla en blanco para que veas el fallo exacto
-            die("ERROR AL GUARDAR EN SUPABASE: " . $e->getMessage());
+        } catch (PDOException $errorTransaccion) {
+            die("Error crítico de base de datos: " . $errorTransaccion->getMessage());
         }
     }
 
-    public function obtenerHorariosGlobales($fecha_inicio, $fecha_fin) {
-        $sql = "SELECT u.id as id_usuario, u.nombre, u.url_foto, h.fecha 
-                FROM usuarios u 
-                LEFT JOIN horarios h ON u.id = h.id_usuario AND h.fecha BETWEEN :inicio AND :fin 
-                WHERE u.is_active = true 
-                ORDER BY u.id, h.fecha";
+    public function obtenerHorariosGlobales(string $fechaInicio, string $fechaFin): array {
+        $sqlConsulta = "SELECT u.id as id_usuario, u.nombre, u.url_foto, h.fecha 
+                        FROM usuarios u 
+                        LEFT JOIN horarios h ON u.id = h.id_usuario AND h.fecha BETWEEN :inicio AND :fin 
+                        WHERE u.is_active = true 
+                        ORDER BY u.id, h.fecha";
         
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['inicio' => $fecha_inicio, 'fin' => $fecha_fin]);
-        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Agrupamos los resultados por empleado para que sea fácil pintarlos en la tabla
-        $horarios = [];
-        foreach ($resultados as $fila) {
-            $id = $fila['id_usuario'];
-            if (!isset($horarios[$id])) {
-                $horarios[$id] = [
-                    'id' => $id,
-                    'nombre' => $fila['nombre'],
-                    'url_foto' => $fila['url_foto'],
-                    'fechas' => []
+        $statement = $this->databaseConnection->prepare($sqlConsulta);
+        $statement->execute([
+            'inicio' => $fechaInicio, 
+            'fin'    => $fechaFin
+        ]);
+        
+        $resultadosConsulta = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $matrizHorarios = [];
+        
+        foreach ($resultadosConsulta as $filaActual) {
+            $idEmpleado = $filaActual['id_usuario'];
+            
+            if (!isset($matrizHorarios[$idEmpleado])) {
+                $matrizHorarios[$idEmpleado] = [
+                    'id'       => $idEmpleado,
+                    'nombre'   => $filaActual['nombre'],
+                    'url_foto' => $filaActual['url_foto'],
+                    'fechas'   => []
                 ];
             }
-            if ($fila['fecha']) {
-                $horarios[$id]['fechas'][] = date('Y-m-d', strtotime($fila['fecha']));
+            
+            if ($filaActual['fecha']) {
+                $matrizHorarios[$idEmpleado]['fechas'][] = date('Y-m-d', strtotime($filaActual['fecha']));
             }
         }
-        return $horarios;
+        
+        return $matrizHorarios;
     }
-
 }
+?>

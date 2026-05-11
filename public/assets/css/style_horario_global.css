@@ -93,3 +93,21 @@ body {
     background: transparent; color: var(--dorado); border: 1px solid var(--dorado); padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; text-transform: uppercase; transition: 0.3s;
 }
 .btn-editar-mini:hover { background: var(--dorado); color: black; }
+
+.titulo-ajustado {
+    margin-top: 10px;
+}
+
+.texto-rango-semana {
+    font-weight: bold; 
+    letter-spacing: 1px;
+}
+
+.celda-alineacion-izquierda {
+    text-align: left;
+}
+
+.texto-fecha-columna {
+    font-size: 0.75rem; 
+    color: #888;
+}

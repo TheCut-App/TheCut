@@ -105,3 +105,9 @@ input:checked + .slider:before { transform: translateX(24px); background-color: 
     text-transform: uppercase;
     font-size: 0.9rem;
 }
+
+.fecha-dia-texto {
+    color: #888; 
+    font-size: 0.8rem; 
+    margin-left: 10px;
+}

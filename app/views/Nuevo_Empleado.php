@@ -31,8 +31,8 @@
         <div class="grupo-entrada">
             <label class="etiqueta-dorada">Contraseña *</label>
             <div class="grupo-password">
-                <input type="password" name="password" id="passInput" class="input-premium" required>
-                <span class="ojo-password" onclick="togglePass('passInput', this)">👁️</span>
+                <input type="password" name="password" id="entradaContrasenaNueva" class="input-premium" required>
+                <span class="ojo-password" onclick="alternarVisibilidadContrasena('entradaContrasenaNueva', this)">&#128065;</span>
             </div>
         </div>
 
@@ -44,14 +44,15 @@
 </div>
 
 <script>
-    function togglePass(inputId, icono) {
-        const input = document.getElementById(inputId);
-        if (input.type === "password") {
-            input.type = "text";
-            icono.innerText = "🔒"; // Cambia el icono al cerrar
+    function alternarVisibilidadContrasena(identificadorEntrada, elementoIcono) {
+        const campoEntrada = document.getElementById(identificadorEntrada);
+        
+        if (campoEntrada.type === "password") {
+            campoEntrada.type = "text";
+            elementoIcono.innerHTML = "&#128274;"; 
         } else {
-            input.type = "password";
-            icono.innerText = "👁️";
+            campoEntrada.type = "password";
+            elementoIcono.innerHTML = "&#128065;"; 
         }
     }
 </script>

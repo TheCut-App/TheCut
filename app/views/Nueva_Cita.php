@@ -4,85 +4,6 @@
     <meta charset="UTF-8">
     <title>TheCut - Nueva Cita</title>
     <link rel="stylesheet" href="public/assets/css/style_admin.css">
-    <style>
-        /* Estilos específicos para esta página (puedes moverlos a style_admin.css luego) */
-        .nueva-cita-layout {
-            display: grid;
-            grid-template-columns: 350px 1fr 400px;
-            gap: 20px;
-            height: 75vh;
-            margin-top: 20px;
-        }
-        .col-seccion {
-            background-color: rgba(26, 29, 32, 0.8);
-            border: 1px solid var(--dorado-artdeco);
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .seccion-titulo {
-            background: var(--gris-carbon);
-            color: var(--dorado-artdeco);
-            padding: 15px;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            border-bottom: 1px solid var(--dorado-artdeco);
-        }
-        .buscador-input {
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid var(--dorado-artdeco);
-            color: white;
-            padding: 15px;
-            width: 100%;
-            outline: none;
-        }
-        .lista-seleccionable {
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-        .item-seleccionable {
-            padding: 12px 20px;
-            border-bottom: 1px solid rgba(197, 160, 89, 0.2);
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .item-seleccionable:hover { background: rgba(197, 160, 89, 0.1); }
-        .item-seleccionable.activo { background: var(--dorado-artdeco); color: var(--azul-profundo); }
-
-        /* Servicios como botones */
-        .grid-servicios { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
-        .btn-servicio {
-            border: 1px solid var(--dorado-artdeco);
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            color: var(--champan);
-            border-radius: 4px;
-        }
-        .btn-servicio.activo { background: var(--dorado-artdeco); color: var(--azul-profundo); }
-
-        /* Barra Resumen */
-        .barra-resumen {
-            background: var(--azul-profundo);
-            border: 2px solid var(--dorado-artdeco);
-            margin-top: 20px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .btn-agendar {
-            background: #0f664a;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-    </style>
 </head>
 <body>
     <div class="admin-contenedor">
@@ -91,261 +12,246 @@
                 <img src="../../public/assets/img/logo.png" alt="Logo" class="logo-pequeno">
                 <h1 class="titulo-admin">NUEVA CITA</h1>
             </div>
-            <a href="index.php?accion=admin" class="boton-dorado" style="text-decoration: none; padding: 10px 20px;">VOLVER</a>
+            <a href="index.php?accion=admin" class="boton-dorado btn-volver-nueva-cita">VOLVER</a>
         </header>
 
-        <form action="index.php?accion=guardar_cita" method="POST" id="formNuevaCita">
+        <form action="index.php?accion=guardar_cita" method="POST" id="formularioNuevaCita">
             <div class="nueva-cita-layout">
                 
-                <!-- 1. CLIENTE -->
                 <div class="col-seccion">
                     <div class="seccion-titulo">1. CLIENTE</div>
-                    <input type="text" class="buscador-input" placeholder="Buscar cliente..." id="buscarCliente">
-                    <div class="lista-seleccionable" id="listaClientes">
-                        <?php foreach($datos['clientes'] as $cliente): ?>
-                            <div class="item-seleccionable" data-id="<?= $cliente['id'] ?>">
-                                <?= strtoupper($cliente['nombre'] . ' ' . $cliente['apellido_1']) ?>
+                    <input type="text" class="buscador-input" placeholder="Buscar cliente..." id="entradaBuscarCliente">
+                    <div class="lista-seleccionable" id="contenedorListaClientes">
+                        <?php foreach($datos['clientes'] as $clienteActual): ?>
+                            <div class="item-seleccionable item-cliente" data-id="<?= $clienteActual['id'] ?>">
+                                <?= strtoupper($clienteActual['nombre'] . ' ' . $clienteActual['apellido_1']) ?>
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <button type="button" class="boton-dorado" style="border-radius: 0;" onclick="window.location.href='index.php?accion=nuevo_cliente'">+ NUEVO CLIENTE</button>
+                    <button type="button" class="boton-dorado btn-nuevo-cliente-cuadrado" onclick="window.location.href='index.php?accion=nuevo_cliente'">+ NUEVO CLIENTE</button>
                 </div>
 
-                <!-- 2. SERVICIO -->
                 <div class="col-seccion">
                     <div class="seccion-titulo">2. SERVICIO</div>
                     <div class="grid-servicios">
-                        <?php foreach($datos['servicios'] as $servicio): ?>
+                        <?php foreach($datos['servicios'] as $servicioActual): ?>
                             <div class="btn-servicio" 
-                                 data-id="<?= $servicio['id'] ?>" 
-                                 data-duracion="<?= $servicio['duracion'] ?>"
-                                 data-precio="<?= $servicio['precio'] ?>">
-                                <?= $servicio['nombre'] ?> <br>
-                                <small>(<?= $servicio['duracion'] ?> min)</small>
+                                 data-id="<?= $servicioActual['id'] ?>" 
+                                 data-duracion="<?= $servicioActual['duracion'] ?>"
+                                 data-precio="<?= $servicioActual['precio'] ?>">
+                                <?= $servicioActual['nombre'] ?> <br>
+                                <small>(<?= $servicioActual['duracion'] ?> min)</small>
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <!-- Inputs ocultos que se llenarán con JS -->
-                    <div id="serviciosSeleccionadosInputs"></div>
+                    <div id="contenedorInputsServiciosOcultos"></div>
                 </div>
 
-                <!-- 3. AGENDA -->
                 <div class="col-seccion">
                     <div class="seccion-titulo">3. AGENDA DISPONIBLE</div>
-                    <input type="date" name="fecha_cita" class="buscador-input" value="<?= date('Y-m-d') ?>" id="fechaCita">
+                    <input type="date" name="fecha_cita" class="buscador-input" value="<?= date('Y-m-d') ?>" id="entradaFechaCita">
                     
-                    <!-- Pestañas Barberos -->
-                    <div style="display: flex; background: var(--gris-carbon);">
-                        <?php foreach($datos['barberos_datos'] as $barbero): ?>
-                            <div class="item-seleccionable barbero-tab" style="flex:1; text-align:center; font-size: 0.8rem;" data-id-barbero="<?= $barbero['id'] ?>">
-                                <?= strtoupper($barbero['nombre']) ?>
+                    <div class="contenedor-pestanas-barberos">
+                        <?php foreach($datos['barberos_datos'] as $barberoActual): ?>
+                            <div class="item-seleccionable barbero-tab tab-barbero-estilizado" data-id-barbero="<?= $barberoActual['id'] ?>">
+                                <?= strtoupper($barberoActual['nombre']) ?>
                             </div>
                         <?php endforeach; ?>
                     </div>
 
-                    <div class="lista-seleccionable" id="listaHoras">
-                        <!-- Aquí se cargarán las horas vía AJAX -->
-                        <p style="padding: 20px; color: gray; text-align: center;">Selecciona barbero y servicios para ver horas...</p>
+                    <div class="lista-seleccionable" id="contenedorListaHoras">
+                        <p class="mensaje-estado-horas">Selecciona barbero y servicios para ver horas...</p>
                     </div>
                 </div>
             </div>
 
-            <!-- BARRA RESUMEN -->
             <div class="barra-resumen">
-                <div id="resumenTexto">
-                    Resumen: <span style="color: var(--dorado-artdeco)">Selecciona los datos de la cita...</span>
+                <div id="contenedorTextoResumen">
+                    Resumen: <span class="texto-resumen-destacado">Selecciona los datos de la cita...</span>
                 </div>
-                <input type="hidden" name="id_cliente" id="inputCliente">
-                <input type="hidden" name="id_barbero" id="inputBarbero">
-                <input type="hidden" name="hora_cita" id="inputHora">
-                <button type="submit" class="btn-agendar">AGENDAR CITA</button>
+                <input type="hidden" name="id_cliente" id="entradaIdClienteOculto">
+                <input type="hidden" name="id_barbero" id="entradaIdBarberoOculto">
+                <input type="hidden" name="hora_cita" id="entradaHoraCitaOculta">
+                <button type="submit" class="btn-agendar btn-agendar-cita">AGENDAR CITA</button>
             </div>
         </form>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-    let clienteSeleccionado = null;
-    let barberoSeleccionado = null;
-    let serviciosSeleccionados = [];
-    
-    const resumenTexto = document.querySelector('#resumenTexto span');
-    const listaHoras = document.querySelector('#listaHoras');
+            let datosClienteSeleccionado = null;
+            let datosBarberoSeleccionado = null;
+            let listaServiciosSeleccionados = [];
+            
+            const elementoTextoResumen = document.querySelector('#contenedorTextoResumen span');
+            const elementoListaHoras = document.querySelector('#contenedorListaHoras');
 
-    // 1. LÓGICA DE CLIENTES
-    
-    // A) Buscador de clientes en tiempo real
-    const buscadorCliente = document.getElementById('buscarCliente');
-    if(buscadorCliente) {
-        buscadorCliente.addEventListener('input', function() {
-            const textoBusqueda = this.value.toLowerCase();
-            const itemsClientes = document.querySelectorAll('#listaClientes .item-seleccionable');
+            const elementoBuscarCliente = document.getElementById('entradaBuscarCliente');
+            if(elementoBuscarCliente) {
+                elementoBuscarCliente.addEventListener('input', function() {
+                    const textoBusquedaActual = this.value.toLowerCase();
+                    const nodosClientes = document.querySelectorAll('.item-cliente');
 
-            itemsClientes.forEach(item => {
-                const nombreCliente = item.innerText.toLowerCase();
-                if (nombreCliente.includes(textoBusqueda)) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
+                    nodosClientes.forEach(nodoActual => {
+                        const nombreCompletoCliente = nodoActual.innerText.toLowerCase();
+                        if (nombreCompletoCliente.includes(textoBusquedaActual)) {
+                            nodoActual.style.display = 'block';
+                        } else {
+                            nodoActual.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            document.querySelectorAll('.item-cliente').forEach(nodoCliente => {
+                nodoCliente.addEventListener('click', function() {
+                    document.querySelectorAll('.item-cliente').forEach(nodo => nodo.classList.remove('activo'));
+                    this.classList.add('activo');
+                    datosClienteSeleccionado = { id: this.dataset.id, nombre: this.innerText };
+                    document.getElementById('entradaIdClienteOculto').value = this.dataset.id;
+                    actualizarTextoResumen();
+                });
+            });
+
+            document.querySelectorAll('.btn-servicio').forEach(botonServicio => {
+                botonServicio.addEventListener('click', function() {
+                    this.classList.toggle('activo');
+                    const identificadorServicio = this.dataset.id;
+                    
+                    if (this.classList.contains('activo')) {
+                        listaServiciosSeleccionados.push({
+                            id: identificadorServicio,
+                            nombre: this.innerText.split('\n')[0],
+                            duracion: parseInt(this.dataset.duracion),
+                            precio: parseFloat(this.dataset.precio) 
+                        });
+                    } else {
+                        listaServiciosSeleccionados = listaServiciosSeleccionados.filter(servicio => servicio.id !== identificadorServicio);
+                    }
+                    actualizarCamposServiciosOcultos();
+                    actualizarTextoResumen();
+                    ejecutarBusquedaHuecosDisponibles();
+                });
+            });
+
+            document.querySelectorAll('.barbero-tab').forEach(pestanaBarbero => {
+                pestanaBarbero.addEventListener('click', function() {
+                    document.querySelectorAll('.barbero-tab').forEach(pestana => pestana.classList.remove('activo'));
+                    this.classList.add('activo');
+                    datosBarberoSeleccionado = { id: this.dataset.idBarbero, nombre: this.innerText };
+                    document.getElementById('entradaIdBarberoOculto').value = this.dataset.idBarbero;
+                    actualizarTextoResumen();
+                    ejecutarBusquedaHuecosDisponibles();
+                });
+            });
+
+            function actualizarCamposServiciosOcultos() {
+                const contenedorInputs = document.getElementById('contenedorInputsServiciosOcultos');
+                contenedorInputs.innerHTML = '';
+                listaServiciosSeleccionados.forEach(servicioActual => {
+                    contenedorInputs.innerHTML += `<input type="hidden" name="servicios[]" value="${servicioActual.id}">`;
+                });
+            }
+
+            function actualizarTextoResumen() {
+                let textoResumenGenerado = "";
+                if (datosClienteSeleccionado) {
+                    textoResumenGenerado += `<b>${datosClienteSeleccionado.nombre}</b> | `;
+                }
+                
+                if (listaServiciosSeleccionados.length > 0) {
+                    const totalMinutosCalculado = listaServiciosSeleccionados.reduce((acumulador, servicio) => acumulador + servicio.duracion, 0);
+                    const totalPrecioCalculado = listaServiciosSeleccionados.reduce((acumulador, servicio) => acumulador + servicio.precio, 0);
+                    const nombresServiciosUnidos = listaServiciosSeleccionados.map(servicio => servicio.nombre).join(' + ');
+                    
+                    textoResumenGenerado += `${nombresServiciosUnidos} (${totalMinutosCalculado} min) - <span class="texto-precio-resumen">${totalPrecioCalculado.toFixed(2)}€</span> | `;
+                }
+
+                if (datosBarberoSeleccionado) {
+                    textoResumenGenerado += `Barbero: ${datosBarberoSeleccionado.nombre}`;
+                }
+                
+                elementoTextoResumen.innerHTML = textoResumenGenerado || "Selecciona los datos de la cita...";
+            }
+
+            async function ejecutarBusquedaHuecosDisponibles() {
+                const fechaSeleccionada = document.getElementById('entradaFechaCita').value;
+                const duracionTotalCalculada = listaServiciosSeleccionados.reduce((acumulador, servicio) => acumulador + servicio.duracion, 0);
+
+                if (!datosBarberoSeleccionado || duracionTotalCalculada === 0 || !fechaSeleccionada) return;
+
+                elementoListaHoras.innerHTML = '<p class="mensaje-estado-horas">Buscando huecos...</p>';
+
+                try {
+                    const respuestaServidor = await fetch(`index.php?accion=api_huecos_disponibles&id_barbero=${datosBarberoSeleccionado.id}&fecha=${fechaSeleccionada}&duracion=${duracionTotalCalculada}`);
+                    const arrayHorasDisponibles = await respuestaServidor.json();
+
+                    elementoListaHoras.innerHTML = '';
+                    if (arrayHorasDisponibles.length === 0) {
+                        elementoListaHoras.innerHTML = '<p class="mensaje-error-horas">No hay huecos seguidos para esa duración.</p>';
+                        return;
+                    }
+
+                    arrayHorasDisponibles.forEach(horaActual => {
+                        const elementoDivHora = document.createElement('div');
+                        elementoDivHora.className = 'item-seleccionable item-hora-disponible';
+                        elementoDivHora.innerText = horaActual;
+                        elementoDivHora.onclick = function() {
+                            document.querySelectorAll('.item-hora-disponible').forEach(nodo => nodo.classList.remove('activo'));
+                            this.classList.add('activo');
+                            document.getElementById('entradaHoraCitaOculta').value = horaActual;
+                        };
+                        elementoListaHoras.appendChild(elementoDivHora);
+                    });
+                } catch (errorPeticion) {
+                    console.error("Error buscando huecos:", errorPeticion);
+                }
+            }
+
+            document.getElementById('entradaFechaCita').addEventListener('change', ejecutarBusquedaHuecosDisponibles);
+
+            const botonAgendarCita = document.querySelector('.btn-agendar-cita');
+
+            botonAgendarCita.addEventListener('click', async (eventoClick) => {
+                eventoClick.preventDefault();
+                
+                const valorIdCliente = document.getElementById('entradaIdClienteOculto').value;
+                const valorIdBarbero = document.getElementById('entradaIdBarberoOculto').value;
+                const valorFecha = document.getElementById('entradaFechaCita').value;
+                const valorHora = document.getElementById('entradaHoraCitaOculta').value;
+                
+                const arrayIdsServicios = Array.from(document.querySelectorAll('input[name="servicios[]"]')).map(inputActual => inputActual.value);
+
+                if (!valorIdCliente || !valorIdBarbero || !valorHora || arrayIdsServicios.length === 0) {
+                    alert("Por favor, completa todos los pasos: Cliente, Servicio, Barbero y Hora.");
+                    return;
+                }
+
+                const objetoFormData = new FormData();
+                objetoFormData.append('id_cliente', valorIdCliente);
+                objetoFormData.append('id_usuario', valorIdBarbero); 
+                objetoFormData.append('fecha_cita', `${valorFecha} ${valorHora}`);
+                arrayIdsServicios.forEach(idServicioActual => objetoFormData.append('servicios[]', idServicioActual));
+
+                try {
+                    const respuestaPeticion = await fetch('index.php?accion=agendar_cita', {
+                        method: 'POST',
+                        body: objetoFormData
+                    });
+                    
+                    const resultadoJson = await respuestaPeticion.json();
+                    if (resultadoJson.success) {
+                        alert("¡Cita agendada con éxito!");
+                        window.location.href = 'index.php?accion=admin'; 
+                    } else {
+                        alert("Error: " + resultadoJson.error);
+                    }
+                } catch (errorConexion) {
+                    console.error(errorConexion);
+                    alert("Hubo un problema al conectar con el servidor.");
                 }
             });
         });
-    }
-
-    // B) Seleccionar cliente al hacer clic
-    document.querySelectorAll('#listaClientes .item-seleccionable').forEach(item => {
-        item.addEventListener('click', function() {
-            document.querySelectorAll('#listaClientes .item-seleccionable').forEach(i => i.classList.remove('activo'));
-            this.classList.add('activo');
-            clienteSeleccionado = { id: this.dataset.id, nombre: this.innerText };
-            document.getElementById('inputCliente').value = this.dataset.id;
-            actualizarResumen();
-        });
-    });
-
-    // 2. LÓGICA DE SERVICIOS (Múltiple)
-    document.querySelectorAll('.btn-servicio').forEach(btn => {
-        btn.addEventListener('click', function() {
-            this.classList.toggle('activo');
-            const id = this.dataset.id;
-            
-            if (this.classList.contains('activo')) {
-                serviciosSeleccionados.push({
-                    id: id,
-                    nombre: this.innerText.split('\n')[0],
-                    duracion: parseInt(this.dataset.duracion),
-                    precio: parseFloat(this.dataset.precio) // Guardamos el precio
-                });
-            } else {
-                serviciosSeleccionados = serviciosSeleccionados.filter(s => s.id !== id);
-            }
-            actualizarInputsServicios();
-            actualizarResumen();
-            buscarHuecosDisponibles();
-        });
-    });
-
-    // 3. LÓGICA DE BARBEROS
-    document.querySelectorAll('.barbero-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.barbero-tab').forEach(t => t.classList.remove('activo'));
-            this.classList.add('activo');
-            barberoSeleccionado = { id: this.dataset.idBarbero, nombre: this.innerText };
-            document.getElementById('inputBarbero').value = this.dataset.idBarbero;
-            actualizarResumen();
-            buscarHuecosDisponibles();
-        });
-    });
-
-    function actualizarInputsServicios() {
-        const contenedor = document.getElementById('serviciosSeleccionadosInputs');
-        contenedor.innerHTML = '';
-        serviciosSeleccionados.forEach(s => {
-            contenedor.innerHTML += `<input type="hidden" name="servicios[]" value="${s.id}">`;
-        });
-    }
-
-    function actualizarResumen() {
-        let texto = "";
-        if (clienteSeleccionado) texto += `<b>${clienteSeleccionado.nombre}</b> | `;
-        
-        if (serviciosSeleccionados.length > 0) {
-            const totalMin = serviciosSeleccionados.reduce((acc, s) => acc + s.duracion, 0);
-            const totalPrecio = serviciosSeleccionados.reduce((acc, s) => acc + s.precio, 0); // Sumamos precios
-            const nombres = serviciosSeleccionados.map(s => s.nombre).join(' + ');
-            
-            // Añadimos el precio al texto del resumen
-            texto += `${nombres} (${totalMin} min) - <span style="color: var(--dorado-artdeco); font-weight: bold;">${totalPrecio.toFixed(2)}€</span> | `;
-        }
-
-        if (barberoSeleccionado) texto += `Barbero: ${barberoSeleccionado.nombre}`;
-        
-        resumenTexto.innerHTML = texto || "Selecciona los datos de la cita...";
-    }
-
-    // 4. EL BUSCADOR DE HUECOS (AJAX)
-    async function buscarHuecosDisponibles() {
-        const fecha = document.getElementById('fechaCita').value;
-        const duracionTotal = serviciosSeleccionados.reduce((acc, s) => acc + s.duracion, 0);
-
-        if (!barberoSeleccionado || duracionTotal === 0 || !fecha) return;
-
-        listaHoras.innerHTML = '<p style="text-align:center; padding:20px;">Buscando huecos...</p>';
-
-        try {
-            const response = await fetch(`index.php?accion=api_huecos_disponibles&id_barbero=${barberoSeleccionado.id}&fecha=${fecha}&duracion=${duracionTotal}`);
-            const horas = await response.json();
-
-            listaHoras.innerHTML = '';
-            if (horas.length === 0) {
-                listaHoras.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">No hay huecos seguidos para esa duración.</p>';
-                return;
-            }
-
-            horas.forEach(h => {
-                const div = document.createElement('div');
-                div.className = 'item-seleccionable';
-                div.innerText = h;
-                div.onclick = function() {
-                    document.querySelectorAll('#listaHoras .item-seleccionable').forEach(i => i.classList.remove('activo'));
-                    this.classList.add('activo');
-                    document.getElementById('inputHora').value = h;
-                };
-                listaHoras.appendChild(div);
-            });
-        } catch (error) {
-            console.error("Error buscando huecos:", error);
-        }
-    }
-
-    // Escuchar cambio de fecha
-    document.getElementById('fechaCita').addEventListener('change', buscarHuecosDisponibles);
-});
-
-// Dentro del DOMContentLoaded que ya tienes:
-const btnAgendar = document.querySelector('.btn-agendar'); // O el ID que tenga tu botón verde
-
-btnAgendar.addEventListener('click', async () => {
-    event.preventDefault();
-    // Recogemos los datos de los inputs ocultos que el JS ya ha ido rellenando
-    const idCliente = document.getElementById('inputCliente').value;
-    const idBarbero = document.getElementById('inputBarbero').value;
-    const fecha = document.getElementById('fechaCita').value;
-    const hora = document.getElementById('inputHora').value;
-    
-    // Obtenemos los IDs de servicios de los checkboxes o inputs ocultos
-    const servicios = Array.from(document.querySelectorAll('input[name="servicios[]"]')).map(i => i.value);
-
-    if (!idCliente || !idBarbero || !hora || servicios.length === 0) {
-        alert("Por favor, completa todos los pasos: Cliente, Servicio, Barbero y Hora.");
-        return;
-    }
-
-    // Enviamos por POST
-    const formData = new FormData();
-    formData.append('id_cliente', idCliente);
-    formData.append('id_usuario', idBarbero); // ID del barbero
-    formData.append('fecha_cita', `${fecha} ${hora}`);
-    servicios.forEach(id => formData.append('servicios[]', id));
-
-    try {
-        const response = await fetch('index.php?accion=agendar_cita', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const resultado = await response.json();
-        if (resultado.success) {
-            alert("¡Cita agendada con éxito!");
-            window.location.href = 'index.php?accion=admin'; // Volvemos al panel principal
-        } else {
-            alert("Error: " + resultado.error);
-        }
-    } catch (e) {
-        console.error(e);
-        alert("Hubo un problema al conectar con el servidor.");
-    }
-});
     </script>
 </body>
 </html>

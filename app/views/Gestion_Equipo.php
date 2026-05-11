@@ -17,23 +17,23 @@
     </div>
 
     <div class="grid-empleados">
-        <?php foreach ($datos['empleados'] as $emp): ?>
+        <?php foreach ($datos['empleados'] as $empleadoActual): ?>
             <div class="tarjeta-empleado">
                 
-                <img src="<?= $emp['url_foto'] ?: 'public/assets/img/logo.png' ?>" class="foto-perfil" alt="Perfil">
+                <img src="<?= $empleadoActual['url_foto'] ?: 'public/assets/img/logo.png' ?>" class="foto-perfil" alt="Perfil">
                 
-                <h2 class="nombre-empleado"><?= htmlspecialchars($emp['nombre']) ?></h2>
+                <h2 class="nombre-empleado"><?= htmlspecialchars($empleadoActual['nombre']) ?></h2>
                 <div class="etiqueta-activo">ACTIVO</div>
 
                 <div class="estadisticas">
-                    Corte: <span><?= number_format($emp['total_servicios'], 2) ?>€</span><br>
-                    Productos: <span><?= number_format($emp['total_productos'], 2) ?>€</span><br>
-                    Total Mes: <span><?= number_format($emp['total_mes'], 2) ?>€</span>
+                    Corte: <span><?= number_format($empleadoActual['total_servicios'], 2) ?>€</span><br>
+                    Productos: <span><?= number_format($empleadoActual['total_productos'], 2) ?>€</span><br>
+                    Total Mes: <span><?= number_format($empleadoActual['total_mes'], 2) ?>€</span>
                 </div>
 
                 <div class="contenedor-botones">
-                    <button class="btn-accion" onclick="window.location.href='index.php?accion=editar_empleado&id=<?= $emp['id'] ?>'">Editar</button>
-                    <button class="btn-accion" onclick="window.location.href='index.php?accion=horario_empleado&id=<?= $emp['id'] ?>'">Horario</button>
+                    <button class="btn-accion" onclick="window.location.href='index.php?accion=editar_empleado&id=<?= $empleadoActual['id'] ?>'">Editar</button>
+                    <button class="btn-accion" onclick="window.location.href='index.php?accion=horario_empleado&id=<?= $empleadoActual['id'] ?>'">Horario</button>
                 </div>
             </div>
         <?php endforeach; ?>

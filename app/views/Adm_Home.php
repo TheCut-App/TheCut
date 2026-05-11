@@ -1,33 +1,32 @@
 <?php
-// Validación estricta: Si no está logueado o no es admin, lo echamos
+
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     header("Location: login.php?error=Acceso+denegado");
     exit;
 }
-// Los redirigimos al index pidiendo la acción admin.
+
 if (!isset($datos)) {
-    // Ajusta la ruta a tu index.php si es necesario
     header("Location: ../../index.php?accion=admin");
     exit;
 }
-// LÓGICA DE FECHAS PARA EL SELECTOR
-$fechaActualStr = $datos['fecha_actual']; // Viene del controlador (ej: '2026-05-01')
-$fechaObj = new DateTime($fechaActualStr);
 
-$meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-$dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+$fechaSeleccionada = $datos['fecha_actual']; 
+$objetoFecha = new DateTime($fechaSeleccionada);
 
-$diaSemana = $dias[$fechaObj->format('w')];
-$diaNum = $fechaObj->format('d');
-$mes = $meses[$fechaObj->format('n') - 1];
-$anio = $fechaObj->format('Y');
+$nombresMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+$nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-$fechaFormateada = strtoupper("$diaSemana, $diaNum $mes $anio");
+$nombreDiaSemana = $nombresDias[$objetoFecha->format('w')];
+$numeroDiaMes = $objetoFecha->format('d');
+$nombreMes = $nombresMeses[$objetoFecha->format('n') - 1];
+$numeroAnio = $objetoFecha->format('Y');
 
-// Calcular día anterior y siguiente para las flechas
-$fechaActual = $datos['fecha_actual'];
-$prevDate = date('Y-m-d', strtotime($fechaActual . ' - 1 day'));
-$nextDate = date('Y-m-d', strtotime($fechaActual . ' + 1 day'));
+$fechaTextoCabecera = strtoupper("$nombreDiaSemana, $numeroDiaMes $nombreMes $numeroAnio");
+
+$fechaNavegacionActual = $datos['fecha_actual'];
+$fechaDiaAnterior = date('Y-m-d', strtotime($fechaNavegacionActual . ' - 1 day'));
+$fechaDiaSiguiente = date('Y-m-d', strtotime($fechaNavegacionActual . ' + 1 day'));
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -51,217 +50,196 @@ $nextDate = date('Y-m-d', strtotime($fechaActual . ' + 1 day'));
                 <div class="caja-estadistica">TOTALES: <?php echo $datos['totales']; ?></div>
             </div>
             
-            <div class="cabecera-der" style="display: flex; align-items: center; gap: 15px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <!-- Flecha Izquierda (Día anterior) -->
-                    <a href="index.php?accion=admin&fecha=<?php echo $prevDate; ?>" 
-                    style="color: #d4af37; text-decoration: none; font-size: 1.5rem; line-height: 1; cursor: pointer;">
-                        &#9664;
-                    </a>
-                    
-                    <!-- Fecha del Controlador -->
+            <div class="cabecera-der contenedor-navegacion-fecha">
+                <div class="contenedor-navegacion-fecha">
+                    <a href="index.php?accion=admin&fecha=<?php echo $fechaDiaAnterior; ?>" class="flecha-navegacion">&#9664;</a>
                     <span class="fecha-actual"><?php echo $datos['fecha_texto']; ?></span>
-                    
-                    <!-- Flecha Derecha (Día siguiente) -->
-                    <a href="index.php?accion=admin&fecha=<?php echo $nextDate; ?>" 
-                    style="color: #d4af37; text-decoration: none; font-size: 1.5rem; line-height: 1; cursor: pointer;">
-                        &#9654;
-                    </a>
+                    <a href="index.php?accion=admin&fecha=<?php echo $fechaDiaSiguiente; ?>" class="flecha-navegacion">&#9654;</a>
                 </div>
             </div>
         </header>
 
         <main class="admin-cuerpo">
-            
             <section class="calendario-contenedor">
                 <?php
-                    // Los datos vienen inyectados desde el index.php
-                    $barberos = $datos['barberos'];
-                    $citas = $datos['citas_grid'];
+                    $listaBarberos = $datos['barberos'];
+                    $listaCitas = $datos['citas_grid'];
 
-                    // Función auxiliar para calcular la fila del grid según la hora (09:00 = fila 2)
-                    function calcularFila($hora) {
-                        $inicio = new DateTime('09:00');
-                        $cita = new DateTime($hora);
-                        $intervalo = $inicio->diff($cita);
-                        $minutos = ($intervalo->h * 60) + $intervalo->i;
-                        return ($minutos / 30) + 2; 
+                    function calcularFilaGrid($horaEvaluacion) {
+                        $horaInicioJornada = new DateTime('09:00');
+                        $horaCita = new DateTime($horaEvaluacion);
+                        $diferenciaIntervalo = $horaInicioJornada->diff($horaCita);
+                        $totalMinutos = ($diferenciaIntervalo->h * 60) + $diferenciaIntervalo->i;
+                        return ($totalMinutos / 30) + 2; 
                     }
-                    ?>
+                ?>
 
-                    <div class="calendario-grid" style="grid-template-columns: 60px repeat(<?php echo count($barberos); ?>, 1fr);">
-                        <div class="celda-cabecera"></div>
-                        <?php foreach($barberos as $index => $nombre): ?>
-                            <div class="celda-cabecera"><?php echo $nombre; ?></div>
-                        <?php endforeach; ?>
+                <div class="calendario-grid" style="grid-template-columns: 60px repeat(<?php echo count($listaBarberos); ?>, 1fr);">
+                    <div class="celda-cabecera"></div>
+                    <?php foreach($listaBarberos as $indiceBarbero => $nombreBarbero): ?>
+                        <div class="celda-cabecera"><?php echo $nombreBarbero; ?></div>
+                    <?php endforeach; ?>
 
-                        <?php for($h=9; $h<=20; $h++): ?>
-                            <div class="celda-hora" style="grid-row: <?php echo (($h-9)*2)+2; ?>"><?php echo "$h:00"; ?></div>
-                            <div class="celda-hora" style="grid-row: <?php echo (($h-9)*2)+3; ?>"><?php echo "$h:30"; ?></div>
-                        <?php endfor; ?>
+                    <?php for($horaBucle = 9; $horaBucle <= 20; $horaBucle++): ?>
+                        <div class="celda-hora" style="grid-row: <?php echo (($horaBucle - 9) * 2) + 2; ?>"><?php echo "$horaBucle:00"; ?></div>
+                        <div class="celda-hora" style="grid-row: <?php echo (($horaBucle - 9) * 2) + 3; ?>"><?php echo "$horaBucle:30"; ?></div>
+                    <?php endfor; ?>
 
- <?php foreach ($datos['citas_grid'] as $cita): ?>
-    <div class="cita-bloque <?php echo $cita['color_clase']; ?>" 
-        onclick="abrirModalEdicion(<?php echo $cita['id']; ?>, '<?php echo addslashes($cita['cliente']); ?>', '<?php echo addslashes($cita['servicio']); ?>', '<?php echo $cita['hora_inicio'] . ' - ' . $cita['hora_fin']; ?>', '<?php echo $cita['estado']; ?>')"
-        style="grid-column: <?php echo $cita['columna']; ?>; 
-            grid-row: <?php echo $cita['fila']; ?> / span <?php echo $cita['duracion']; ?>;
-            display: flex; flex-direction: column; justify-content: center; padding: 5px; overflow: hidden; cursor: pointer;">
+                    <?php foreach ($listaCitas as $citaActual): ?>
+                        <div class="cita-bloque <?php echo $citaActual['color_clase']; ?> estilo-interior-cita" 
+                            onclick="abrirModalDetalleEdicion(<?php echo $citaActual['id']; ?>, '<?php echo addslashes($citaActual['cliente']); ?>', '<?php echo addslashes($citaActual['servicio']); ?>', '<?php echo $citaActual['hora_inicio'] . ' - ' . $citaActual['hora_fin']; ?>', '<?php echo $citaActual['estado']; ?>')"
+                            style="grid-column: <?php echo $citaActual['columna']; ?>; grid-row: <?php echo $citaActual['fila']; ?> / span <?php echo $citaActual['duracion']; ?>;">
 
-        <div style="font-weight: bold; font-size: 0.85em; margin-bottom: 2px;">
-            <?php echo $cita['hora_inicio']; ?> - <?php echo $cita['hora_fin']; ?>
-        </div>
-        
-        <div style="font-weight: 800; text-transform: uppercase; font-size: 0.9em; line-height: 1;">
-            <?php echo $cita['cliente']; ?>
-        </div>
-        
-        <div style="font-style: italic; font-size: 0.75em; margin-top: 2px; line-height: 1.1;">
-            <?php echo $cita['servicio']; ?>
-        </div>
-        
-    </div>
-<?php endforeach; ?>
-                    </div>
+                            <div class="texto-cita-hora">
+                                <?php echo $citaActual['hora_inicio']; ?> - <?php echo $citaActual['hora_fin']; ?>
+                            </div>
+                            
+                            <div class="texto-cita-cliente">
+                                <?php echo $citaActual['cliente']; ?>
+                            </div>
+                            
+                            <div class="texto-cita-servicio">
+                                <?php echo $citaActual['servicio']; ?>
+                            </div>
+                            
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </section>
 
             <aside class="menu-lateral">
-                <button id="btnAbrirModal" class="boton-dorado btn-proxima">
-                    PRÓXIMA CITA DISPONIBLE
-                </button>
+                <button id="btnAbrirModal" class="boton-dorado btn-proxima">PRÓXIMA CITA DISPONIBLE</button>
 
                 <div class="caja-menu">
-    <div class="caja-titulo">ACCIONES RÁPIDAS</div>
-    <ul class="caja-lista">
-        <li onclick="window.location.href='index.php?accion=nueva_cita'" style="cursor: pointer;">Nueva Cita</li>
-        <li onclick="window.location.href='index.php?accion=venta'" style="cursor: pointer;">Venta</li>
-    </ul>
-</div>
+                    <div class="caja-titulo">ACCIONES RÁPIDAS</div>
+                    <ul class="caja-lista">
+                        <li class="enlace-menu-lateral" onclick="window.location.href='index.php?accion=nueva_cita'">Nueva Cita</li>
+                        <li class="enlace-menu-lateral" onclick="window.location.href='index.php?accion=venta'">Venta</li>
+                    </ul>
+                </div>
 
                 <div class="caja-menu">
                     <div class="caja-titulo">GESTIÓN GLOBAL</div>
                     <ul class="caja-lista">
-                        <li onclick="window.location.href='index.php?accion=gestion_equipo'" style="cursor: pointer;">Gestión de Equipo</li>
-                        <li onclick="window.location.href='index.php?accion=horarios_globales'" style="cursor: pointer;">Horarios Globales</li>
-                        <li onclick="window.location.href='index.php?accion=gestion_clientes'" style="cursor: pointer;">Clientes</li>
-                        <li onclick="window.location.href='index.php?accion=inventario'" style="cursor: pointer;">Inventario</li>
+                        <li class="enlace-menu-lateral" onclick="window.location.href='index.php?accion=gestion_equipo'">Gestión de Equipo</li>
+                        <li class="enlace-menu-lateral" onclick="window.location.href='index.php?accion=horarios_globales'">Horarios Globales</li>
+                        <li class="enlace-menu-lateral" onclick="window.location.href='index.php?accion=gestion_clientes'">Clientes</li>
+                        <li class="enlace-menu-lateral" onclick="window.location.href='index.php?accion=inventario'">Inventario</li>
                     </ul>
                 </div>
             </aside>
             
         </main>
     </div>
-    <!-- Estructura del Popup (Modal) -->
+
     <div id="modalProximaCita" class="modal-oculto">
         <div class="modal-contenido">
             <span class="cerrar-modal" id="btnCerrarModal">&times;</span>
             <h2 class="modal-titulo">Buscar Próxima Cita</h2>
             
             <div class="modal-cuerpo">
-                <div id="resultadoBusqueda" style="text-align: center; color: #fff; font-size: 1.1rem; min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <p style="color: #ccc;">Buscando el mejor hueco en la agenda...</p>
+                <div id="resultadoBusqueda" class="contenedor-resultado-busqueda">
+                    <p class="texto-buscando">Buscando el mejor hueco en la agenda...</p>
                 </div>
             </div>
             
         </div>
     </div>
-    <!-- SEGUNDO POPUP: Confirmar Nueva Cita -->
+
     <div id="modalNuevaCita" class="modal-oculto">
         <div class="modal-contenido">
             <span class="cerrar-modal" id="btnCerrarModalNueva">&times;</span>
             <h2 class="modal-titulo">AGENDAR CITA</h2>
             
-            <div class="modal-cuerpo" style="color: #fff;">
-                <div style="background: #2a2a2a; border-left: 4px solid #d4af37; padding: 15px; margin-bottom: 20px;">
-                    <p style="margin: 0 0 10px 0;"><strong>Barbero:</strong> <span id="txtNuevoBarbero" style="color: #d4af37;"></span></p>
-                    <p style="margin: 0;"><strong>Hora:</strong> <span id="txtNuevaHora" style="color: #d4af37;"></span></p>
+            <div class="modal-cuerpo cuerpo-modal-blanco">
+                <div class="caja-resumen-cita">
+                    <p class="texto-resumen-cita"><strong>Barbero:</strong> <span id="txtNuevoBarbero" class="texto-dorado-resumen"></span></p>
+                    <p class="texto-resumen-cita-final"><strong>Hora:</strong> <span id="txtNuevaHora" class="texto-dorado-resumen"></span></p>
                 </div>
                 
-                <!-- FORMULARIO DE NUEVA CITA -->
                 <form id="formNuevaCita" action="index.php?accion=guardar_cita" method="POST">
-                    <!-- Campos ocultos para enviar al servidor -->
                     <input type="hidden" id="inputNuevoBarbero" name="id_barbero">
                     <input type="hidden" id="inputNuevaHora" name="hora_cita">
                     <input type="hidden" name="fecha_cita" value="<?php echo $datos['fecha_actual']; ?>">
 
-                    <!-- Selector de Cliente -->
-                    <div style="margin-bottom: 15px;">
-                        <label style="color: #d4af37; display: block; margin-bottom: 5px;">Cliente:</label>
-                        <select name="id_cliente" required style="width: 100%; padding: 10px; background: #1a1a1a; color: #fff; border: 1px solid #d4af37; border-radius: 4px;">
+                    <div class="espaciado-formulario">
+                        <label class="etiqueta-formulario">Cliente:</label>
+                        <select name="id_cliente" required class="selector-formulario">
                             <option value="">-- Selecciona un cliente --</option>
-                            <?php foreach($datos['clientes'] as $cli): ?>
-                                <option value="<?php echo $cli['id']; ?>">
-                                    <?php echo htmlspecialchars($cli['nombre'] . ' ' . $cli['apellido_1']); ?> 
-                                    (<?php echo htmlspecialchars($cli['telefono']); ?>)
+                            <?php foreach($datos['clientes'] as $clienteActual): ?>
+                                <option value="<?php echo $clienteActual['id']; ?>">
+                                    <?php echo htmlspecialchars($clienteActual['nombre'] . ' ' . $clienteActual['apellido_1']); ?> 
+                                    (<?php echo htmlspecialchars($clienteActual['telefono']); ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <div style="text-align: right; margin-top: 5px;">
-                            <a href="index.php?accion=nuevo_cliente" style="color: #d4af37; font-size: 0.85rem; text-decoration: none;">+ Crear nuevo cliente</a>
+                        <div class="contenedor-enlace-nuevo">
+                            <a href="index.php?accion=nuevo_cliente" class="enlace-crear-cliente">+ Crear nuevo cliente</a>
                         </div>
                     </div>
 
-                    <!-- Selector de Servicios (Checkboxes) -->
-                    <div style="margin-bottom: 20px;">
-                        <label style="color: #d4af37; display: block; margin-bottom: 5px;">Servicios (puedes marcar varios):</label>
-                        <div style="background: #2a2a2a; border: 1px solid #d4af37; border-radius: 4px; padding: 10px; max-height: 150px; overflow-y: auto;">
-                            <?php foreach($datos['servicios'] as $srv): ?>
-                                <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
-                                    <input type="checkbox" name="servicios[]" value="<?php echo $srv['id']; ?>" id="srv_<?php echo $srv['id']; ?>">
-                                    <label for="srv_<?php echo $srv['id']; ?>" style="cursor: pointer;">
-                                        <?php echo htmlspecialchars($srv['nombre']); ?> 
-                                        <span style="color: #d4af37; font-size: 0.9em;">(<?php echo $srv['precio']; ?>€)</span>
+                    <div class="espaciado-formulario-amplio">
+                        <label class="etiqueta-formulario">Servicios (puedes marcar varios):</label>
+                        <div class="contenedor-lista-servicios">
+                            <?php foreach($datos['servicios'] as $servicioActual): ?>
+                                <div class="fila-checkbox-servicio">
+                                    <input type="checkbox" name="servicios[]" value="<?php echo $servicioActual['id']; ?>" id="srv_<?php echo $servicioActual['id']; ?>">
+                                    <label for="srv_<?php echo $servicioActual['id']; ?>" class="etiqueta-checkbox">
+                                        <?php echo htmlspecialchars($servicioActual['nombre']); ?> 
+                                        <span class="precio-checkbox">(<?php echo $servicioActual['precio']; ?>€)</span>
                                     </label>
                                 </div>
                             <?php endforeach; ?>
                         </div>
                     </div>
 
-                    <button type="submit" class="boton-dorado" style="width: 100%;">GUARDAR CITA EN AGENDA</button>
+                    <button type="submit" class="boton-dorado boton-ancho-total">GUARDAR CITA EN AGENDA</button>
                 </form>                
             </div>
         </div>
     </div>
+
     <div id="modalEditarCita" class="modal-oculto">
-        <div class="modal-contenido" style="max-width: 600px; background-color: #0b1f18; border: 2px solid #d4af37; padding: 0; border-radius: 8px; position: relative;">
+        <div class="modal-contenido modal-edicion-avanzada">
             
-            <div style="position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border: 1px solid #8b733d; border-radius: 4px; pointer-events: none;"></div>
+            <div class="borde-interior-dorado"></div>
             
-            <span class="cerrar-modal" id="btnCerrarModalEdicion" style="position: absolute; top: 10px; right: 20px; color: #d4af37; z-index: 10;">&times;</span>
+            <span class="cerrar-modal cerrar-modal-edicion" id="btnCerrarModalEdicion">&times;</span>
             
-            <h2 style="color: #d4af37; text-align: center; margin: 20px 0; font-weight: normal; font-size: 1.8rem; border-bottom: 1px solid #8b733d; padding-bottom: 15px;">EDITAR CITA</h2>
+            <h2 class="titulo-modal-edicion">EDITAR CITA</h2>
             
-            <div style="padding: 0 20px 30px 20px; text-align: center;">
-                <p style="color: #ccc; font-size: 1.1rem; margin-bottom: 40px; letter-spacing: 0.5px;">
-                    CLIENTE: <span id="modCli" style="color: #fff;"></span> | 
-                    SERVICIO: <span id="modSrv" style="color: #fff;"></span> | 
-                    HORA: <span id="modHora" style="color: #fff;"></span>
+            <div class="cuerpo-modal-edicion">
+                <p class="texto-detalles-edicion">
+                    CLIENTE: <span id="modCli" class="valor-detalle-edicion"></span> | 
+                    SERVICIO: <span id="modSrv" class="valor-detalle-edicion"></span> | 
+                    HORA: <span id="modHora" class="valor-detalle-edicion"></span>
                 </p>
 
-                <div id="avisoPagada" style="display: none; background: rgba(255,0,0,0.2); border: 1px solid #ff6b6b; color: #ff6b6b; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-weight: bold; text-transform: uppercase;">
+                <div id="avisoPagada" class="aviso-cita-pagada">
                     ESTA CITA YA HA SIDO COBRADA Y NO SE PUEDE MODIFICAR
                 </div>
 
-                <div id="contenedorBotonesEdicion" style="display: flex; justify-content: center; gap: 40px;">
+                <div id="contenedorBotonesEdicion" class="contenedor-botones-accion">
                     
-                    <div style="text-align: center; cursor: pointer;" onclick="ejecutarAccionCita('confirmar')">
-                        <div style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #d4af37; background: #e6c875; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto;">
-                            <span style="color: #1a7b3c; font-size: 3rem; font-weight: bold;">&#10004;</span>
+                    <div class="boton-accion-cita" onclick="ejecutarProcesoCita('confirmar')">
+                        <div class="circulo-accion-cita">
+                            <span class="icono-accion-cita color-confirmar">&#10004;</span>
                         </div>
-                        <span style="color: #fff; font-size: 1rem;">CONFIRMAR</span>
+                        <span class="texto-accion-cita">CONFIRMAR</span>
                     </div>
 
-                    <div style="text-align: center; cursor: pointer;" onclick="ejecutarAccionCita('editar')">
-                        <div style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #d4af37; background: #e6c875; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto;">
-                            <span style="color: #2a2a2a; font-size: 2.5rem;">&#128398;</span>
+                    <div class="boton-accion-cita" onclick="ejecutarProcesoCita('editar')">
+                        <div class="circulo-accion-cita">
+                            <span class="icono-accion-cita color-editar">&#128398;</span>
                         </div>
-                        <span style="color: #fff; font-size: 1rem;">EDITAR</span>
+                        <span class="texto-accion-cita">EDITAR</span>
                     </div>
 
-                    <div style="text-align: center; cursor: pointer;" onclick="ejecutarAccionCita('eliminar')">
-                        <div style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #d4af37; background: #e6c875; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto;">
-                            <span style="color: #c9302c; font-size: 3.5rem; font-weight: bold; line-height: 1;">&times;</span>
+                    <div class="boton-accion-cita" onclick="ejecutarProcesoCita('eliminar')">
+                        <div class="circulo-accion-cita">
+                            <span class="icono-accion-cita color-eliminar">&times;</span>
                         </div>
-                        <span style="color: #fff; font-size: 1rem;">ELIMINAR</span>
+                        <span class="texto-accion-cita">ELIMINAR</span>
                     </div>
 
                 </div>
@@ -270,146 +248,134 @@ $nextDate = date('Y-m-d', strtotime($fechaActual . ' + 1 day'));
             <input type="hidden" id="modalIdCita">
         </div>
     </div>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const modalProxima = document.getElementById('modalProximaCita');
-            const modalNueva = document.getElementById('modalNuevaCita');
-            const divResultado = document.getElementById('resultadoBusqueda');
+            const modalBusquedaHueco = document.getElementById('modalProximaCita');
+            const modalConfirmacionCita = document.getElementById('modalNuevaCita');
+            const contenedorResultadosBusqueda = document.getElementById('resultadoBusqueda');
 
-            // Función 1: Buscar hueco
-            function buscarProximoHueco() {
-                divResultado.innerHTML = '<p style="color: #ccc;">Buscando el mejor hueco en la agenda...</p>';
+            function buscarHuecoDisponible() {
+                contenedorResultadosBusqueda.innerHTML = '<p class="texto-buscando">Buscando el mejor hueco en la agenda...</p>';
                 
                 fetch('index.php?accion=api_proxima_cita')
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.encontrado) {
-                            divResultado.innerHTML = `
-                                <span style="color: #28a745; font-size: 1.4rem; font-weight: bold; margin-bottom: 15px;">¡Hueco Libre Encontrado!</span>
-                                <div style="background: #2a2a2a; border: 1px solid #d4af37; padding: 15px; border-radius: 8px; width: 100%; margin-bottom: 20px;">
-                                    <strong style="color: #d4af37;">BARBERO:</strong> ${data.barbero}<br>
-                                    <strong style="color: #d4af37;">HORA:</strong> ${data.hora}
+                    .then(respuestaServidor => respuestaServidor.json())
+                    .then(datosRespuesta => {
+                        if(datosRespuesta.encontrado) {
+                            contenedorResultadosBusqueda.innerHTML = `
+                                <span class="texto-exito-busqueda">¡Hueco Libre Encontrado!</span>
+                                <div class="caja-resumen-busqueda">
+                                    <strong class="etiqueta-dorada">BARBERO:</strong> ${datosRespuesta.barbero}<br>
+                                    <strong class="etiqueta-dorada">HORA:</strong> ${datosRespuesta.hora}
                                 </div>
-                                <!-- AHORA LLAMA A UNA FUNCIÓN JS PASANDO LOS DATOS -->
-                                    <button onclick="abrirModalGestion(${data.id_barbero}, '${data.barbero}', '${data.hora}')" class="boton-dorado" style="width: 100%;">                                    GESTIONAR ESTE HUECO
-                                </button>
+                                <button onclick="abrirModalGestionCita(${datosRespuesta.id_barbero}, '${datosRespuesta.barbero}', '${datosRespuesta.hora}')" class="boton-dorado boton-ancho-total">GESTIONAR ESTE HUECO</button>
                             `;
                         } else {
-                            divResultado.innerHTML = '<span style="color: #dc3545; font-size: 1.2rem;">No hay huecos disponibles hoy.</span>';
+                            contenedorResultadosBusqueda.innerHTML = '<span class="texto-error-busqueda">No hay huecos disponibles hoy.</span>';
                         }
                     });
             }
 
-            // Función 2: Transición entre popups
-            window.abrirModalGestion = function(idBarbero, nombreBarbero, horaAsignada) {
-                // Cerramos el popup 1
-                modalProxima.classList.remove('modal-activo');
-                modalProxima.classList.add('modal-oculto');
+            window.abrirModalGestionCita = function(identificadorBarbero, nombreDelBarbero, horaAsignada) {
+                modalBusquedaHueco.classList.remove('modal-activo');
+                modalBusquedaHueco.classList.add('modal-oculto');
                 
-                // Textos visuales para el usuario
-                document.getElementById('txtNuevoBarbero').innerText = nombreBarbero;
+                document.getElementById('txtNuevoBarbero').innerText = nombreDelBarbero;
                 document.getElementById('txtNuevaHora').innerText = horaAsignada;
 
-                // Datos ocultos para el formulario que va a la base de datos
-                document.getElementById('inputNuevoBarbero').value = idBarbero;
+                document.getElementById('inputNuevoBarbero').value = identificadorBarbero;
                 document.getElementById('inputNuevaHora').value = horaAsignada;
                 
-                // Abrimos el popup 2
-                modalNueva.classList.remove('modal-oculto');
-                modalNueva.classList.add('modal-activo');
+                modalConfirmacionCita.classList.remove('modal-oculto');
+                modalConfirmacionCita.classList.add('modal-activo');
             };
-            // Lógica de apertura y cierre del Modal 1 (Búsqueda)
+
             document.getElementById('btnAbrirModal').addEventListener('click', function() {
-                modalProxima.classList.remove('modal-oculto');
-                modalProxima.classList.add('modal-activo');
-                buscarProximoHueco();
+                modalBusquedaHueco.classList.remove('modal-oculto');
+                modalBusquedaHueco.classList.add('modal-activo');
+                buscarHuecoDisponible();
             });
+            
             document.getElementById('btnCerrarModal').addEventListener('click', function() {
-                modalProxima.classList.remove('modal-activo');
-                modalProxima.classList.add('modal-oculto');
+                modalBusquedaHueco.classList.remove('modal-activo');
+                modalBusquedaHueco.classList.add('modal-oculto');
             });
 
-            // Lógica de cierre del Modal 2 (Gestión)
             document.getElementById('btnCerrarModalNueva').addEventListener('click', function() {
-                modalNueva.classList.remove('modal-activo');
-                modalNueva.classList.add('modal-oculto');
+                modalConfirmacionCita.classList.remove('modal-activo');
+                modalConfirmacionCita.classList.add('modal-oculto');
             });
         });
-        // --- LÓGICA DEL MODAL DE EDICIÓN ---
-        const modalEditar = document.getElementById('modalEditarCita');
-        
-        window.abrirModalEdicion = function(id, cliente, servicio, hora, estado) {
-            document.getElementById('modalIdCita').value = id;
-            document.getElementById('modCli').innerText = cliente;
-            document.getElementById('modSrv').innerText = servicio;
-            document.getElementById('modHora').innerText = hora;
-            
-            const aviso = document.getElementById('avisoPagada');
-            const botones = document.getElementById('contenedorBotonesEdicion');
 
-            if (estado === 'Pagado') {
-                aviso.style.display = 'block';
-                botones.style.opacity = '0.3';
-                botones.style.pointerEvents = 'none'; // Deshabilita los clics
+        const modalEdicionCita = document.getElementById('modalEditarCita');
+        
+        window.abrirModalDetalleEdicion = function(identificadorCita, nombreCliente, nombreServicio, franjaHoraria, estadoCita) {
+            document.getElementById('modalIdCita').value = identificadorCita;
+            document.getElementById('modCli').innerText = nombreCliente;
+            document.getElementById('modSrv').innerText = nombreServicio;
+            document.getElementById('modHora').innerText = franjaHoraria;
+            
+            const contenedorAvisoPago = document.getElementById('avisoPagada');
+            const grupoBotonesEdicion = document.getElementById('contenedorBotonesEdicion');
+
+            if (estadoCita === 'Pagado') {
+                contenedorAvisoPago.style.display = 'block';
+                grupoBotonesEdicion.style.opacity = '0.3';
+                grupoBotonesEdicion.style.pointerEvents = 'none';
             } else {
-                aviso.style.display = 'none';
-                botones.style.opacity = '1';
-                botones.style.pointerEvents = 'auto';
+                contenedorAvisoPago.style.display = 'none';
+                grupoBotonesEdicion.style.opacity = '1';
+                grupoBotonesEdicion.style.pointerEvents = 'auto';
             }
             
-            modalEditar.classList.remove('modal-oculto');
-            modalEditar.classList.add('modal-activo');
+            modalEdicionCita.classList.remove('modal-oculto');
+            modalEdicionCita.classList.add('modal-activo');
         }
+
         document.getElementById('btnCerrarModalEdicion').addEventListener('click', function() {
-            modalEditar.classList.remove('modal-activo');
-            modalEditar.classList.add('modal-oculto');
+            modalEdicionCita.classList.remove('modal-activo');
+            modalEdicionCita.classList.add('modal-oculto');
         });
 
-        window.ejecutarAccionCita = function(accion) {
-            const id = document.getElementById('modalIdCita').value;
+        window.ejecutarProcesoCita = function(tipoAccion) {
+            const identificadorCitaSeleccionada = document.getElementById('modalIdCita').value;
             
-            if (accion === 'eliminar') {
+            if (tipoAccion === 'eliminar') {
                 if(confirm('¿Estás seguro de que deseas ELIMINAR esta cita? Esta acción no se puede deshacer.')) {
-                    window.location.href = 'index.php?accion=eliminar_cita&id=' + id;
+                    window.location.href = 'index.php?accion=eliminar_cita&id=' + identificadorCitaSeleccionada;
                 }
-            } else if (accion === 'confirmar') {
-                window.location.href = 'index.php?accion=confirmar_cita&id=' + id;
-            }else if (accion === 'editar') {
-                window.location.href = 'index.php?accion=editar_cita&id=' + id;
+            } else if (tipoAccion === 'confirmar') {
+                window.location.href = 'index.php?accion=confirmar_cita&id=' + identificadorCitaSeleccionada;
+            } else if (tipoAccion === 'editar') {
+                window.location.href = 'index.php?accion=editar_cita&id=' + identificadorCitaSeleccionada;
             }
         };
-        // Cálculo automático de la Hora Fin Estimada
-        const inputHora = document.getElementById('inputHoraInicio');
-        const spanHoraFin = document.getElementById('horaFinEstimada');
-        
-        // PHP nos inyecta directamente la suma de minutos de los servicios de esta cita
-        const duracionTotalMinutos = <?= $datos['cita']['duracion_total'] ?? 0 ?>;
 
-        function calcularHoraFin() {
-            if (!inputHora.value || duracionTotalMinutos === 0) return;
+        const elementoEntradaHora = document.getElementById('inputHoraInicio');
+        const elementoSalidaHoraFin = document.getElementById('horaFinEstimada');
+        
+        const calculoDuracionMinutos = <?= $datos['cita']['duracion_total'] ?? 0 ?>;
+
+        function calcularEstimacionHoraFin() {
+            if (!elementoEntradaHora || !elementoEntradaHora.value || calculoDuracionMinutos === 0) return;
             
-            // Separamos horas y minutos del input (Ej: "10:00")
-            const [horas, minutos] = inputHora.value.split(':').map(Number);
+            const [horasActuales, minutosActuales] = elementoEntradaHora.value.split(':').map(Number);
             
-            // Creamos un objeto de fecha ficticio para hacer la suma fácilmente
-            let fechaTemp = new Date();
-            fechaTemp.setHours(horas, minutos, 0);
+            let objetoFechaTemporal = new Date();
+            objetoFechaTemporal.setHours(horasActuales, minutosActuales, 0);
             
-            // Le sumamos la duración de los servicios
-            fechaTemp.setMinutes(fechaTemp.getMinutes() + duracionTotalMinutos);
+            objetoFechaTemporal.setMinutes(objetoFechaTemporal.getMinutes() + calculoDuracionMinutos);
             
-            // Formateamos de vuelta a HH:MM asegurando los ceros a la izquierda
-            const hh = String(fechaTemp.getHours()).padStart(2, '0');
-            const mm = String(fechaTemp.getMinutes()).padStart(2, '0');
+            const formatoHoras = String(objetoFechaTemporal.getHours()).padStart(2, '0');
+            const formatoMinutos = String(objetoFechaTemporal.getMinutes()).padStart(2, '0');
             
-            spanHoraFin.innerText = hh + ':' + mm;
+            elementoSalidaHoraFin.innerText = formatoHoras + ':' + formatoMinutos;
         }
 
-        // Calculamos al cargar la página por primera vez
-        calcularHoraFin();
-        
-        // Recalculamos cada vez que el usuario cambie la hora en el input
-        inputHora.addEventListener('input', calcularHoraFin);
+        if (elementoEntradaHora) {
+            calcularEstimacionHoraFin();
+            elementoEntradaHora.addEventListener('input', calcularEstimacionHoraFin);
+        }
     </script>
 </body>
 </html>

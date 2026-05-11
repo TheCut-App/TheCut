@@ -193,3 +193,65 @@ body {
 .btn-guardar:hover {
     background: #fff;
 }
+
+.nombre-empleado {
+    margin: 0; 
+    color: white;
+}
+
+.rol-empleado {
+    color: var(--dorado); 
+    margin-top: 5px;
+}
+
+.fecha-alta-empleado {
+    font-size: 0.8rem; 
+    color: #888;
+}
+
+.contenedor-opciones-estado {
+    margin-top: 30px; 
+    text-align: left; 
+    padding-left: 10px;
+}
+
+.cuadricula-nombres {
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px;
+}
+
+.icono-cerrado {
+    display: none;
+}
+
+.nombre-empleado {
+    margin: 0; 
+    color: white;
+}
+
+.rol-empleado {
+    color: var(--dorado); 
+    margin-top: 5px;
+}
+
+.fecha-alta-empleado {
+    font-size: 0.8rem; 
+    color: #888;
+}
+
+.opciones-estado {
+    margin-top: 30px; 
+    text-align: left; 
+    padding-left: 10px;
+}
+
+.grid-nombres {
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px;
+}
+
+.icon-closed {
+    display: none;
+}

@@ -22,15 +22,18 @@
                     <input type="text" id="usuario" name="usuario" autocomplete="off" 
                     value="<?php echo isset($_SESSION['login_username']) ? htmlspecialchars($_SESSION['login_username']) : ''; ?>">
                 </div>
+                
                 <div class="grupo-campo">
                     <label for="contrasena">CONTRASEÑA</label>
                     <input type="password" id="contrasena" name="contrasena">
                 </div>
+                
                 <button type="submit" name="btn_login" value="normal" class="boton-enviar">ACEPTAR</button>
                 <button type="submit" name="btn_login" value="invitado" class="boton-enviar">INVITADO</button>
             </form>
         </div>
     </div>
+
 <?php 
     if (isset($_SESSION['error_login'])): 
 ?>

@@ -1,299 +1,212 @@
 <?php
-/*
-require_once 'app/config/db.php';
 
-$db = Database::getConnection();
-
-// Consultamos el usuario que creamos antes
-$sql = "SELECT * FROM usuarios WHERE username = :user";
-$stmt = $db->prepare($sql); // Usamos $db en lugar de $pdo
-$stmt->execute(['user' => 'admin']);
-$usuario = $stmt->fetch();
-?>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>TheCut - Test Conexión</title>
-    <style>
-        body { background: #1a1a1a; color: #d4af37; font-family: serif; text-align: center; padding-top: 50px; }
-        .card { border: 2px solid #d4af37; display: inline-block; padding: 20px; border-radius: 10px; }
-    </style>
-</head>
-<body>
-    <h1>Bienvenido a TheCut</h1>
-    <div class="card">
-        <?php if ($usuario): ?>
-            <p>Conexión establecida con éxito.</p>
-            <p>Usuario detectado: <strong><?php echo $usuario['nombre']; ?></strong></p>
-            <p>Rol: <?php echo $usuario['is_admin'] ? 'Administrador' : 'Empleado'; ?></p>
-            <a>
-                <button onclick="window.location.href='app/views/login.php'">Ir a Login</button>
-            </a>
-        <?php else: ?>
-            <p>No se encontró el usuario en la base de datos.</p>
-        <?php endif; ?>
-    </div>
-</body>
-</html>
-*/
-?>
-<?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Cargamos las clases esenciales 
 require_once 'app/config/db.php';
 require_once 'app/models/Usuario.php';
 require_once 'app/models/Cita.php';
 require_once 'app/models/Producto.php';
 require_once 'app/controllers/AuthController.php';
+require_once 'app/controllers/UsuarioController.php';
 
-// Obtenemos la conexión a la base de datos
-$conexion = Database::getConnection();
+$conexionBaseDatos = Database::getConnection();
+$accionSolicitada = $_GET['accion'] ?? 'mostrar_login';
 
-// Sistema de enrutamiento básico
-$accion = $_GET['accion'] ?? 'mostrar_login';
-
-if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Si el formulario se envía, instanciamos el controlador inyectando la conexión
-    $auth = new AuthController($conexion);
-    $auth->procesarLogin();
-} elseif ($accion === 'admin') {
-    // Si la URL pide 'admin', cargamos el controlador y la vista
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-
-    $usuarioCtrl = new UsuarioController($conexion);
-    $fechaUrl = $_GET['fecha'] ?? null;
-    $datos = $usuarioCtrl->mostrarPanelAdmin($fechaUrl);
+switch ($accionSolicitada) {
     
-    require_once 'app/views/Adm_Home.php';
-} elseif ($accion === 'guardar_cita') {
-    // Ruta para procesar el formulario del popup
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    
-    $usuarioCtrl = new UsuarioController($conexion);
-    $usuarioCtrl->procesarNuevaCita();
-} elseif ($accion === 'venta') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
+    case 'login':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $controladorAutenticacion = new AuthController($conexionBaseDatos);
+            $controladorAutenticacion->procesarLogin();
+        }
+        break;
 
-    $usuarioCtrl = new UsuarioController($conexion);
-    $datos = $usuarioCtrl->mostrarPanelVentas(); 
-    
-    require_once 'app/views/Venta.php';
-    exit;
-} elseif ($accion === 'procesar_cobro') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    
-    $usuarioCtrl = new UsuarioController($conexion);
-    $usuarioCtrl->procesarCobro();
-} elseif ($accion === 'eliminar_cita') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    $usuarioCtrl = new UsuarioController($conexion);
-    
-    if (isset($_GET['id'])) {
-        $cita = new Cita();
-        $cita->eliminarCita($_GET['id']);
-    }
-    header("Location: index.php?accion=admin");
-    exit;
+    case 'admin':
+        $controladorUsuario = new UsuarioController();
+        $fechaSeleccionada = $_GET['fecha'] ?? null;
+        $datos = $controladorUsuario->mostrarPanelAdmin($fechaSeleccionada);
+        require_once 'app/views/Adm_Home.php';
+        break;
 
-} elseif ($accion === 'confirmar_cita') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    
-    if (isset($_GET['id'])) {
-        $cita = new Cita();
-        $cita->confirmarCita($_GET['id']);
-    }
-    header("Location: index.php?accion=admin");
-    exit;
-} elseif ($accion === 'editar_cita') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    $usuarioCtrl = new UsuarioController($conexion);
-    $usuarioCtrl->mostrarEditarCita($_GET['id']);
-    exit;
-} elseif ($accion === 'gestion_clientes') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->mostrarGestionClientes();
-    exit;
-} elseif ($accion === 'editar_cliente') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->mostrarEditarCliente($_GET['id']);
-    exit;
+    case 'guardar_cita':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->procesarNuevaCita();
+        break;
+        
+    case 'agendar_cita':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->guardarCita();
+        break;
 
-} elseif ($accion === 'guardar_edicion_cliente') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->guardarEdicionCliente();
-    exit;
-} elseif ($accion === 'api_buscar_clientes') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->apiBuscarClientes();
-    exit;
-} elseif ($accion === 'actualizar_cita') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    $usuarioCtrl = new UsuarioController($conexion);
-    $usuarioCtrl->actualizarCita();
-    exit;
-} elseif ($accion === 'api_proxima_cita') {
-    // Ruta exclusiva para el AJAX del popup
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    
-    $usuarioCtrl = new UsuarioController($conexion);
-    $usuarioCtrl->apiProximaCita();
-    exit; // Importante poner exit para que no pinte nada de HTML, solo devuelva datos
+    case 'venta':
+        $controladorUsuario = new UsuarioController();
+        $datos = $controladorUsuario->mostrarPanelVentas(); 
+        require_once 'app/views/Venta.php';
+        break;
 
-} elseif ($accion === 'nueva_cita') {
-    // Cargamos los modelos necesarios
-    require_once 'app/models/Cita.php';
-    require_once 'app/models/Usuario.php';
-    require_once 'app/controllers/UsuarioController.php';
+    case 'procesar_cobro':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->procesarCobro();
+        break;
 
-    $usuarioCtrl = new UsuarioController($conexion);
-    
-    // Obtenemos los datos para llenar los selectores de la página
-    $datos = $usuarioCtrl->mostrarPanelAdmin(); 
-    
-    // Cargamos la nueva vista
-    require_once 'app/views/Nueva_Cita.php';
-    exit;
+    case 'eliminar_cita':
+        if (isset($_GET['id'])) {
+            $modeloCita = new Cita();
+            $modeloCita->eliminarCita($_GET['id']);
+        }
+        header("Location: index.php?accion=admin");
+        exit;
 
-} elseif ($accion === 'api_huecos_disponibles') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    $usuarioCtrl = new UsuarioController($conexion);
-    $usuarioCtrl->apiHuecosDisponibles();
-} elseif ($accion === 'invitado') {
-    
-    require_once 'app/views/Inv_Home.php';
+    case 'confirmar_cita':
+        if (isset($_GET['id'])) {
+            $modeloCita = new Cita();
+            $modeloCita->confirmarCita($_GET['id']);
+        }
+        header("Location: index.php?accion=admin");
+        exit;
 
-} elseif ($accion === 'empleado') {
-    
-    require_once 'app/views/Emp_Home.php';
+    case 'editar_cita':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->mostrarEditarCita($_GET['id']);
+        break;
 
-} elseif ($accion === 'agendar_cita') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    $usuarioCtrl = new UsuarioController($conexion);
-    $usuarioCtrl->guardarCita();
-    exit;  
-} elseif ($accion === 'nuevo_cliente') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->mostrarFormularioNuevoCliente();
-    exit;
+    case 'actualizar_cita':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->actualizarCita();
+        break;
 
-} elseif ($accion === 'guardar_cliente') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->procesarNuevoCliente();
-    exit; 
-} elseif ($accion === 'nuevo_empleado') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/models/Usuario.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->mostrarNuevoEmpleado();
-    exit;
+    case 'gestion_clientes':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->mostrarGestionClientes();
+        break;
 
-} elseif ($accion === 'guardar_empleado') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/models/Usuario.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->guardarNuevoEmpleado();
-    exit;      
-} elseif ($accion === 'gestion_equipo') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/models/Usuario.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->mostrarGestionEquipo();
-    exit;
-} elseif ($accion === 'editar_empleado') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/models/Usuario.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->mostrarEditarEmpleado($_GET['id']);
-    exit;
-} elseif ($accion === 'actualizar_empleado') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/models/Usuario.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->actualizarEmpleado();
-    exit;   
-} elseif ($accion === 'horario_empleado') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/models/Usuario.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->mostrarHorarioEmpleado($_GET['id']);
-    exit;
+    case 'nuevo_cliente':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->mostrarFormularioNuevoCliente();
+        break;
 
-} elseif ($accion === 'guardar_horario') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/models/Usuario.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->guardarHorarioEmpleado();
-} elseif ($accion === 'api_barberos_fecha') {
-    require_once 'app/models/Cita.php'; 
-    require_once 'app/models/Usuario.php';
-    require_once 'app/controllers/UsuarioController.php';
-    $usuarioCtrl = new UsuarioController($conexion);
-    $usuarioCtrl->apiBarberosPorFecha();
-    exit;
+    case 'guardar_cliente':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->procesarNuevoCliente();
+        break;
 
-} elseif ($accion === 'horarios_globales') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/models/Usuario.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->mostrarHorariosGlobales();
-    exit;
-} elseif ($accion === 'api_historial_cliente') {
-    require_once 'app/models/Cita.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->apiHistorialCliente();
-    exit;
-} elseif ($accion === 'inventario') {
-    require_once 'app/models/Producto.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->mostrarInventario();
-    exit;
+    case 'editar_cliente':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->mostrarEditarCliente($_GET['id']);
+        break;
 
-} elseif ($accion === 'guardar_producto') {
-    require_once 'app/models/Producto.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->guardarProducto();
-    exit;
+    case 'guardar_edicion_cliente':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->guardarEdicionCliente();
+        break;
 
-} elseif ($accion === 'ajustar_stock') {
-    require_once 'app/models/Producto.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->ajustarStock();
-    exit;
+    case 'api_buscar_clientes':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->apiBuscarClientes();
+        break;
 
-} elseif ($accion === 'sumar_stock') {
-    require_once 'app/models/Producto.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->sumarStock();
-    exit;
-} elseif ($accion === 'eliminar_producto') {
-    require_once 'app/models/Producto.php';
-    require_once 'app/controllers/UsuarioController.php';
-    (new UsuarioController($conexion))->eliminarProducto();
-    exit;
-} else {
-    // Si no se está enviando el formulario ni se pide admin, mostramos el login
-    require_once 'app/views/login.php';
+    case 'api_historial_cliente':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->apiHistorialCliente();
+        break;
+
+    case 'api_proxima_cita':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->apiProximaCita();
+        break;
+
+    case 'nueva_cita':
+        $controladorUsuario = new UsuarioController();
+        $datos = $controladorUsuario->mostrarPanelAdmin(); 
+        require_once 'app/views/Nueva_Cita.php';
+        break;
+
+    case 'api_huecos_disponibles':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->apiHuecosDisponibles();
+        break;
+
+    case 'api_barberos_fecha':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->apiBarberosPorFecha();
+        break;
+
+    case 'invitado':
+        require_once 'app/views/Inv_Home.php';
+        break;
+
+    case 'empleado':
+        require_once 'app/views/Emp_Home.php';
+        break;
+
+    case 'gestion_equipo':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->mostrarGestionEquipo();
+        break;
+
+    case 'nuevo_empleado':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->mostrarNuevoEmpleado();
+        break;
+
+    case 'guardar_empleado':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->guardarNuevoEmpleado();
+        break;
+
+    case 'editar_empleado':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->mostrarEditarEmpleado($_GET['id']);
+        break;
+
+    case 'actualizar_empleado':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->actualizarEmpleado();
+        break;
+
+    case 'horario_empleado':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->mostrarHorarioEmpleado($_GET['id']);
+        break;
+
+    case 'guardar_horario':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->guardarHorarioEmpleado();
+        break;
+
+    case 'horarios_globales':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->mostrarHorariosGlobales();
+        break;
+
+    case 'inventario':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->mostrarInventario();
+        break;
+
+    case 'guardar_producto':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->guardarProducto();
+        break;
+
+    case 'ajustar_stock':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->ajustarStock();
+        break;
+
+    case 'sumar_stock':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->sumarStock();
+        break;
+
+    case 'eliminar_producto':
+        $controladorUsuario = new UsuarioController();
+        $controladorUsuario->eliminarProducto();
+        break;
+
+    default:
+        require_once 'app/views/login.php';
+        break;
 }
-?>
