@@ -47,6 +47,8 @@ if (session_status() === PHP_SESSION_NONE) {
 // Cargamos las clases esenciales 
 require_once 'app/config/db.php';
 require_once 'app/models/Usuario.php';
+require_once 'app/models/Cita.php';
+require_once 'app/models/Producto.php';
 require_once 'app/controllers/AuthController.php';
 
 // Obtenemos la conexión a la base de datos
@@ -261,6 +263,34 @@ if ($accion === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once 'app/models/Cita.php';
     require_once 'app/controllers/UsuarioController.php';
     (new UsuarioController($conexion))->apiHistorialCliente();
+    exit;
+} elseif ($accion === 'inventario') {
+    require_once 'app/models/Producto.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->mostrarInventario();
+    exit;
+
+} elseif ($accion === 'guardar_producto') {
+    require_once 'app/models/Producto.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->guardarProducto();
+    exit;
+
+} elseif ($accion === 'ajustar_stock') {
+    require_once 'app/models/Producto.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->ajustarStock();
+    exit;
+
+} elseif ($accion === 'sumar_stock') {
+    require_once 'app/models/Producto.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->sumarStock();
+    exit;
+} elseif ($accion === 'eliminar_producto') {
+    require_once 'app/models/Producto.php';
+    require_once 'app/controllers/UsuarioController.php';
+    (new UsuarioController($conexion))->eliminarProducto();
     exit;
 } else {
     // Si no se está enviando el formulario ni se pide admin, mostramos el login

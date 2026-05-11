@@ -4,10 +4,12 @@ class UsuarioController{
 
     private $usuario;
     private $cita;
+    private $producto;
 
     public function __construct() {
             $this->usuario = new Usuario();
             $this->cita = new Cita();
+            $this->producto = new Producto();
 
             //Si no esta con sesion iniciada, a login
             if (!isset($_SESSION['user_id'])) {
@@ -631,6 +633,77 @@ public function mostrarEditarCliente($id) {
                 </div>
             </div>";
         }
+        exit;
+    }
+
+    public function mostrarInventario() {
+        // Ahora usamos el modelo Producto
+        $productos = $this->producto->listarProductos();
+
+        $valor_total = 0;
+        foreach ($productos as $p) {
+            $valor_total += ($p['stock'] * $p['precio']);
+        }
+
+        $datos = [
+            'productos' => $productos,
+            'total_productos' => count($productos),
+            'valor_total' => $valor_total
+        ];
+
+        require_once 'app/views/Inventario.php';
+    }
+
+    public function guardarProducto() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nombre = trim($_POST['nombre'] ?? '');
+            $stock = (int)($_POST['stock'] ?? 0);
+            $stock_minimo = (int)($_POST['stock_minimo'] ?? 5);
+            $precio = (float)($_POST['precio'] ?? 0);
+            $precio_coste = (float)($_POST['precio_coste'] ?? 0); // Recogemos el precio de coste
+
+            if (!empty($nombre)) {
+                $this->producto->crearProducto($nombre, $stock, $stock_minimo, $precio, $precio_coste);
+            }
+            header("Location: index.php?accion=inventario");
+            exit;
+        }
+    }
+
+    public function ajustarStock() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id_producto'] ?? null;
+            $nuevo_stock = (int)($_POST['nuevo_stock'] ?? 0);
+
+            if ($id) {
+                $this->producto->actualizarStock($id, $nuevo_stock);
+            }
+            header("Location: index.php?accion=inventario");
+            exit;
+        }
+    }
+
+    public function sumarStock() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id_producto'] ?? null;
+            $cantidad = (int)($_POST['cantidad_sumar'] ?? 0);
+
+            if ($id && $cantidad > 0) {
+                $this->producto->sumarStock($id, $cantidad);
+            }
+            header("Location: index.php?accion=inventario");
+            exit;
+        }
+    }
+
+    public function eliminarProducto() {
+        $id = $_GET['id'] ?? null;
+        
+        if ($id) {
+            $this->producto->eliminarProducto($id);
+        }
+        
+        header("Location: index.php?accion=inventario");
         exit;
     }
 }
