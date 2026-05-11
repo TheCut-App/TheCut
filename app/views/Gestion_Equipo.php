@@ -20,8 +20,7 @@
         <?php foreach ($datos['empleados'] as $empleadoActual): ?>
             <div class="tarjeta-empleado">
                 
-                <img src="<?= $empleadoActual['url_foto'] ?: 'public/assets/img/logo.png' ?>" class="foto-perfil" alt="Perfil">
-                
+                <img src="<?= $empleadoActual['url_foto'] ?: 'public/assets/img/avatar.png' ?>" class="foto-perfil" alt="Perfil">                
                 <h2 class="nombre-empleado"><?= htmlspecialchars($empleadoActual['nombre']) ?></h2>
                 <div class="etiqueta-activo">ACTIVO</div>
 

@@ -10,7 +10,7 @@
 <div class="contenedor-global">
     <div class="cabecera-global">
         <div>
-            <a href="index.php?accion=admin_home" class="btn-volver">&lt; Volver al Panel</a>
+            <a href="index.php?accion=admin" class="btn-volver">&lt; Volver al Panel</a>
             <h1 class="titulo titulo-ajustado">CUADRANTE DE HORARIOS</h1>
         </div>
         
@@ -44,7 +44,7 @@
             <tr>
                 <td>
                     <div class="perfil-empleado">
-                        <img src="<?= $empleadoActual['url_foto'] ?: 'public/assets/img/logo.png' ?>" class="foto-mini">
+                        <img src="<?= $empleadoActual['url_foto'] ?: 'public/assets/img/avatar.png' ?>" class="foto-mini">
                         <strong><?= strtoupper($empleadoActual['nombre']) ?></strong>
                     </div>
                 </td>

@@ -26,7 +26,7 @@ class UsuarioController {
             $apellido_1 = $_POST['apellido_1'] ?? '';
             $apellido_2 = $_POST['apellido_2'] ?? null;
             $is_admin = isset($_POST['is_admin']);
-            $url_foto = $_POST['url_foto'] ?? null;
+            $url_foto = !empty($_POST['url_foto']) ? $_POST['url_foto'] : 'public/assets/img/avatar.png';
 
             if ($id) {
                 $this->usuarioModel->actualizarUsuario($id, $nombre, $apellido_1, $apellido_2, $is_admin, $url_foto);
