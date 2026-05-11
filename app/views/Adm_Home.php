@@ -50,12 +50,13 @@ $fechaDiaSiguiente = date('Y-m-d', strtotime($fechaNavegacionActual . ' + 1 day'
                 <div class="caja-estadistica">TOTALES: <?php echo $datos['totales']; ?></div>
             </div>
             
-            <div class="cabecera-der contenedor-navegacion-fecha">
+           <div class="cabecera-der" style="display: flex; align-items: center; gap: 30px;">
                 <div class="contenedor-navegacion-fecha">
                     <a href="index.php?accion=admin&fecha=<?php echo $fechaDiaAnterior; ?>" class="flecha-navegacion">&#9664;</a>
                     <span class="fecha-actual"><?php echo $datos['fecha_texto']; ?></span>
                     <a href="index.php?accion=admin&fecha=<?php echo $fechaDiaSiguiente; ?>" class="flecha-navegacion">&#9654;</a>
                 </div>
+                <a href="index.php?accion=logout" style="color: #ff4d4d; text-decoration: none; border: 1px solid #ff4d4d; padding: 8px 15px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; transition: 0.2s;">SALIR</a>
             </div>
         </header>
 

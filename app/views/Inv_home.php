@@ -17,11 +17,12 @@
             </div>
         </div>
         
-        <div class="seccion-der">
+        <div class="seccion-der" style="display: flex; align-items: center; gap: 20px;">
             <div class="info-usuario">
                 <span class="usuario-nombre">Invitado</span>
                 <div class="usuario-avatar">I</div>
             </div>
+            <a href="index.php?accion=logout" class="btn-cerrar-sesion" style="color: #ff4d4d; text-decoration: none; border: 1px solid #ff4d4d; padding: 8px 15px; border-radius: 4px; font-weight: bold; transition: 0.2s;">SALIR</a>
         </div>
     </header>
 
@@ -29,12 +30,12 @@
         <h2 class="titulo-seccion">¿QUÉ DESEAS HACER HOY?</h2>
         
         <div class="contenedor-botones-acciones">
-            <button class="boton-accion btn-nueva-cita">
+            <button class="boton-accion btn-nueva-cita" onclick="window.location.href='index.php?accion=nueva_cita'">
                 <span class="icono-accion">&#128197;</span> 
                 <span class="texto-accion">NUEVA CITA</span>
             </button>
             
-            <button class="boton-accion btn-venta">
+            <button class="boton-accion btn-venta" onclick="window.location.href='index.php?accion=venta'">
                 <span class="icono-accion">&#128610;</span> 
                 <span class="texto-accion">VENTA</span>
             </button>

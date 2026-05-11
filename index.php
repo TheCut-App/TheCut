@@ -22,6 +22,17 @@ switch ($accionSolicitada) {
             $controladorAutenticacion->procesarLogin();
         }
         break;
+        
+    case 'logout':
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        // Vaciamos y destruimos la sesión
+        session_unset();
+        session_destroy();
+        // Redirigimos al login
+        header("Location: index.php");
+        exit;
 
     case 'admin':
         $controladorUsuario = new UsuarioController();

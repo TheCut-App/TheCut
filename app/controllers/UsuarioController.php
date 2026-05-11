@@ -39,9 +39,13 @@ class UsuarioController {
     } 
 
     public function mostrarPanelAdmin($fechaSeleccionada = null) {
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
-            header("Location: index.php?error=Acceso+denegado");
-            exit;
+        $esAccionNuevaCita = (isset($_GET['accion']) && $_GET['accion'] === 'nueva_cita');
+        
+        if (!$esAccionNuevaCita) {
+            if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
+                header("Location: index.php?error=Acceso+denegado");
+                exit;
+            }
         }
 
         $fechaActiva = $fechaSeleccionada ?? date('Y-m-d');
@@ -61,7 +65,8 @@ class UsuarioController {
 
         $datos = [
             'totales'        => $this->citaModel->citasTotalesHoy($fechaActiva),
-            'mis_citas'      => $this->citaModel->citasHoy($_SESSION['user_id'], $fechaActiva),        
+            // Usamos un operador ternario para evitar error si no hay user_id en invitado
+            'mis_citas'      => isset($_SESSION['user_id']) ? $this->citaModel->citasHoy($_SESSION['user_id'], $fechaActiva) : 0,        
             'barberos'       => array_map(fn($b) => strtoupper($b['nombre']), $listaBarberos),
             'barberos_datos' => $listaBarberos, 
             'citas_grid'     => $this->formatearCitasParaGrid($citasBrutas, $listaBarberos),
