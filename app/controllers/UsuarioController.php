@@ -270,7 +270,8 @@ class UsuarioController {
         $datos = [
             'fecha_actual' => $fechaHoy,
             'citas_pendientes' => $this->citaModel->obtenerCitasPendientes($fechaHoy),
-            'servicios' => $this->citaModel->listarServicios() 
+            'servicios' => $this->citaModel->listarServicios(),
+            'productos' => $this->productoModel->listarProductos()
         ];
 
         return $datos;

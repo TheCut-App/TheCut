@@ -34,10 +34,14 @@
                     </button>
                 <?php endforeach; ?>
                 
-                <button class="btn-item-catalogo" data-categoria="producto" style="display: none;" onclick="agregarElementoCarrito('p1', 'Pomada Fijadora', 18.00)">
-                    <div class="nombre-item-catalogo">Pomada Fijadora</div>
-                    <div class="precio-item-catalogo">18.00€</div>
-                </button>
+                <?php if (isset($datos['productos'])): ?>
+                    <?php foreach($datos['productos'] as $productoActual): ?>
+                        <button class="btn-item-catalogo" data-categoria="producto" style="display: none;" onclick="agregarElementoCarrito('prod_<?= $productoActual['id'] ?>', '<?= addslashes($productoActual['nombre']) ?>', <?= $productoActual['precio'] ?>)">
+                            <div class="nombre-item-catalogo"><?= htmlspecialchars($productoActual['nombre']) ?></div>
+                            <div class="precio-item-catalogo"><?= number_format($productoActual['precio'], 2) ?>€</div>
+                        </button>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
 
