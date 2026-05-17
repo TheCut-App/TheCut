@@ -19,7 +19,7 @@ body {
 
 .contenedor-form-empleado {
     width: 100%;
-    max-width: 550px; /* Ancho ideal para que se vea recogido y elegante */
+    max-width: 550px;
     background: var(--gris-carbon);
     border: 2px solid var(--dorado-artdeco);
     border-radius: 8px;
@@ -28,7 +28,6 @@ body {
     box-shadow: 0 15px 35px rgba(0,0,0,0.5);
 }
 
-/* Marco decorativo interior */
 .contenedor-form-empleado::before {
     content: '';
     position: absolute;
@@ -64,7 +63,7 @@ body {
 
 .input-premium {
     width: 100%;
-    box-sizing: border-box; /* <-- ESTA LÍNEA ARREGLA EL SOLAPAMIENTO */
+    box-sizing: border-box;
     background: rgba(233, 213, 179, 0.05);
     border: 1px solid rgba(197, 160, 89, 0.4);
     border-radius: 4px;
@@ -128,7 +127,6 @@ body {
     box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
 }
 
-/* Contenedor relativo para poder posicionar el ojo dentro */
 .grupo-password {
     position: relative;
     width: 100%;
@@ -138,7 +136,7 @@ body {
     position: absolute;
     right: 15px;
     top: 50%;
-    transform: translateY(-80%); /* Ajuste fino para centrarlo verticalmente */
+    transform: translateY(-80%);
     cursor: pointer;
     color: var(--dorado-artdeco);
     font-size: 1.2rem;

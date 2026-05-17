@@ -1,18 +1,18 @@
-/* THE CUT - Paleta de Colores Estricta */
+
 :root {
-    --azul-profundo: #050B0D;    /* Fondo principal */
-    --dorado-artdeco: #C5A059;    /* Bordes, detalles, títulos de sección */
-    --champan-crema: #E9D5B3;    /* Texto principal, fondos alternos */
-    --dorado-brillante: #D4AF37;   /* Resaltados de selección activa (hover) */
-    --verde-esmeralda: #023d17;   /* Botones de acción positiva */
-    --gris-carbon: #1A1D20;      /* Fondo secundario del contenedor */
+    --azul-profundo: #050B0D;
+    --dorado-artdeco: #C5A059;
+    --champan-crema: #E9D5B3;
+    --dorado-brillante: #D4AF37;
+    --verde-esmeralda: #023d17;
+    --gris-carbon: #1A1D20;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Tipografía Sans-serif limpia */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
@@ -22,10 +22,9 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Evita el scroll para una sensación de panel fijo */
+    overflow: hidden;
 }
 
-/* Contenedor Principal */
 .panel-contenedor {
     width: 90%;
     max-width: 1200px;
@@ -39,10 +38,9 @@ body {
     overflow: hidden;
 }
 
-/* Cabecera de la App */
 .cabecera-app {
     background-color: var(--gris-carbon);
-    border-bottom: 1px solid rgba(197, 160, 89, 0.2); /* Borde dorado art deco suave */
+    border-bottom: 1px solid rgba(197, 160, 89, 0.2);
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
@@ -113,10 +111,9 @@ body {
     width: 100%;
 }
 
-/* Estilo Base de los Botones de Acción  */
 .boton-accion {
-    background-color: var(--verde-esmeralda); /* Verde Esmeralda para acción positiva */
-    color: var(--azul-profundo); /* Texto oscuro sobre fondo claro para contraste */
+    background-color: var(--verde-esmeralda);
+    color: var(--azul-profundo);
     border: 2px solid var(--dorado-artdeco);
     border-radius: 12px;
     padding: 2rem;
@@ -136,21 +133,19 @@ body {
     text-transform: uppercase;
 }
 
-/* Iconos usando emojis para simplicidad */
 .icono-accion {
     font-size: 4rem;
 }
 
-/* Estados de Hover y Activo */
 .boton-accion:hover {
     transform: translateY(-5px);
-    background-color: var(--champan-crema); /* Cambia el color al pasar el ratón */
+    background-color: var(--champan-crema);
     color: var(--azul-profundo);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 .boton-accion:active {
     transform: translateY(0);
-    border-color: var(--dorado-brillante); /* Resaltado de selección activa */
+    border-color: var(--dorado-brillante);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
